@@ -14,8 +14,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { X } from "lucide-react";
-import { useEffect, useReducer, useState } from "react";
+import { Download, Trash2, X } from "lucide-react";
+import { useEffect, useReducer, useState, useSyncExternalStore } from "react";
+
+function emptySubscribe() {
+  return () => {};
+}
 
 interface Issue {
   id: string;
@@ -149,7 +153,19 @@ function Issues({ labels, issues, milestone, onRemoveLabel }: IssuesProps) {
   );
 }
 
+function getLabelsFromStorage() {
+  return JSON.parse(localStorage.getItem("labels") ?? "[]") as string[];
+}
+
+const storageLabels = getLabelsFromStorage();
+
 function useLabels() {
+  const initialLabels = useSyncExternalStore(
+    emptySubscribe,
+    () => storageLabels,
+    () => []
+  );
+
   const [labels, dispatchLabels] = useReducer(
     (
       state: string[],
@@ -174,8 +190,13 @@ function useLabels() {
           throw new Error(`Unhandled action type: ${action.type}`);
       }
     },
-    []
+    initialLabels
   );
+
+  // save labels to local storage
+  useEffect(() => {
+    localStorage.setItem("labels", JSON.stringify(labels));
+  }, [labels]);
 
   const addLabel = (label: string) => {
     dispatchLabels({ type: "ADD_LABEL", label });
@@ -197,9 +218,22 @@ type IssueAction =
       type: "ADD_ISSUE";
       issue: Pick<Issue, "title" | "labels" | "description" | "milestone">;
     }
-  | { type: "REMOVE_ISSUE"; id: string };
+  | { type: "REMOVE_ISSUE"; id: string }
+  | { type: "CLEAR_ISSUES" };
+
+function getIssuesFromStorage() {
+  return JSON.parse(localStorage.getItem("issues") ?? "[]") as Issue[];
+}
+
+const issueLabels = getIssuesFromStorage();
 
 function useIssues() {
+  const initialIssues = useSyncExternalStore(
+    emptySubscribe,
+    () => issueLabels,
+    () => []
+  );
+
   const [issues, dispatchIssues] = useReducer(
     (state: Issue[], action: IssueAction) => {
       switch (action.type) {
@@ -219,14 +253,21 @@ function useIssues() {
         }
         case "REMOVE_ISSUE":
           return state.filter((issue) => issue.id !== action.id);
+        case "CLEAR_ISSUES":
+          return [];
         default:
           // @ts-expect-error - check for unhandled action types
           // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
           throw new Error(`Unhandled action type: ${action.type}`);
       }
     },
-    []
+    initialIssues
   );
+
+  // save issues to local storage
+  useEffect(() => {
+    localStorage.setItem("issues", JSON.stringify(issues));
+  }, [issues]);
 
   const addIssue = (
     issue: Extract<IssueAction, { type: "ADD_ISSUE" }>["issue"]
@@ -234,7 +275,11 @@ function useIssues() {
     dispatchIssues({ type: "ADD_ISSUE", issue });
   };
 
-  return [issues, addIssue] as const;
+  const clearIssues = () => {
+    dispatchIssues({ type: "CLEAR_ISSUES" });
+  };
+
+  return [issues, addIssue, clearIssues] as const;
 }
 
 function createCsv(issues: Issue[]) {
@@ -251,7 +296,7 @@ function createCsv(issues: Issue[]) {
 
 export default function Home() {
   const [labels, addLabel, removeLabel, resetLabels] = useLabels();
-  const [issues, addIssue] = useIssues();
+  const [issues, addIssue, clearIssues] = useIssues();
   const [milestone, setMilestone] = useState<string | null>(null);
   const [exportUrl, setExportUrl] = useState<string | null>(null);
 
@@ -339,11 +384,16 @@ export default function Home() {
           </form>
         </div>
 
-        <Button asChild>
-          <a href={exportUrl ?? undefined} download="issues.csv">
-            Export Issues
-          </a>
-        </Button>
+        <div className="flex gap-4">
+          <Button asChild>
+            <a href={exportUrl ?? undefined} download="issues.csv">
+              <Download className="mr-2 h-4 w-4" /> Export Issues
+            </a>
+          </Button>
+          <Button variant="secondary" onClick={clearIssues}>
+            <Trash2 className="mr-2 h-4 w-4" /> Clear Issues
+          </Button>
+        </div>
       </div>
     </main>
   );
