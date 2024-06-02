@@ -154,6 +154,10 @@ function Issues({ labels, issues, milestone, onRemoveLabel }: IssuesProps) {
 }
 
 function getLabelsFromStorage() {
+  if (typeof localStorage === "undefined") {
+    return [];
+  }
+
   return JSON.parse(localStorage.getItem("labels") ?? "[]") as string[];
 }
 
@@ -222,6 +226,10 @@ type IssueAction =
   | { type: "CLEAR_ISSUES" };
 
 function getIssuesFromStorage() {
+  if (typeof localStorage === "undefined") {
+    return [];
+  }
+
   return JSON.parse(localStorage.getItem("issues") ?? "[]") as Issue[];
 }
 
