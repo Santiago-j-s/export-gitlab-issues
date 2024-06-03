@@ -85,6 +85,13 @@ const issueLabels = getIssuesFromStorage();
 function useIssues() {
   const initialIssues = useSyncExternalStore(emptySubscribe, () => issueLabels);
 
+  const initialIssuesWithOnRemove = initialIssues.map((issue) => ({
+    ...issue,
+    onRemove: () => {
+      dispatchIssues({ type: "REMOVE_ISSUE", id: issue.id });
+    },
+  }));
+
   const [issues, dispatchIssues] = useReducer(
     (state: Issue[], action: IssueAction) => {
       switch (action.type) {
@@ -112,7 +119,7 @@ function useIssues() {
           throw new Error(`Unhandled action type: ${action.type}`);
       }
     },
-    initialIssues ?? []
+    initialIssuesWithOnRemove ?? []
   );
 
   // save issues to local storage
