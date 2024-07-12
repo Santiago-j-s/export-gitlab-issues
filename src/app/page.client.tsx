@@ -41,12 +41,25 @@ export default function ClientPage() {
 
   return (
     <>
-      <LabelsAndMilestoneForm
-        addLabel={addLabel}
-        resetLabels={resetLabels}
-        milestone={milestone ?? ""}
-        setMilestone={setMilestone}
-      />
+      <div className="flex justify-between w-full items-center">
+        <LabelsAndMilestoneForm
+          addLabel={addLabel}
+          resetLabels={resetLabels}
+          milestone={milestone ?? ""}
+          setMilestone={setMilestone}
+        />
+
+        <div className="flex gap-4">
+          <Button asChild>
+            <a href={exportUrl ?? undefined} download="issues.csv">
+              <Download className="mr-2 h-4 w-4" /> Export Issues
+            </a>
+          </Button>
+          <Button variant="secondary" onClick={clearIssues}>
+            <Trash2 className="mr-2 h-4 w-4" /> Clear Issues
+          </Button>
+        </div>
+      </div>
 
       <div className="col-span-8">
         <Issues
@@ -71,17 +84,6 @@ export default function ClientPage() {
         >
           <input hidden readOnly name="milestone" value={milestone ?? ""} />
         </form>
-      </div>
-
-      <div className="flex gap-4">
-        <Button asChild>
-          <a href={exportUrl ?? undefined} download="issues.csv">
-            <Download className="mr-2 h-4 w-4" /> Export Issues
-          </a>
-        </Button>
-        <Button variant="secondary" onClick={clearIssues}>
-          <Trash2 className="mr-2 h-4 w-4" /> Clear Issues
-        </Button>
       </div>
 
       <EditModalDialog
