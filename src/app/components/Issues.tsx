@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Pencil, Trash2, X } from "lucide-react";
+import { X } from "lucide-react";
 
 function Labels({
   labels,
@@ -54,9 +54,7 @@ export interface Issue {
   labels: string[];
   description: string;
   milestone: string;
-  isEditing?: boolean;
   onRemove: () => void;
-  onEdit: () => void;
 }
 
 function IssueItem({
@@ -65,26 +63,8 @@ function IssueItem({
   labels,
   description,
   milestone,
-  isEditing,
   onRemove,
-  onEdit,
 }: Issue) {
-  if (isEditing) {
-    console.log(milestone);
-    return (
-      <InputsRow
-        defaultTitle={title}
-        labels={labels}
-        milestone={milestone}
-        onRemoveLabel={() => {
-          onRemove();
-        }}
-        type="edit"
-        id={id}
-      />
-    );
-  }
-
   return (
     <TableRow id={`${id}`}>
       <TableCell>
@@ -99,11 +79,7 @@ function IssueItem({
       <TableCell>
         <p className="text-zinc-300">{description}</p>
       </TableCell>
-      <TableCell className="flex gap-4">
-        <Button size="icon" onClick={onEdit}>
-          <Pencil />
-        </Button>
-
+      <TableCell>
         <Button
           variant="destructive"
           size="icon"
@@ -112,52 +88,30 @@ function IssueItem({
             onRemove();
           }}
         >
-          <Trash2 />
+          <X />
         </Button>
       </TableCell>
     </TableRow>
   );
 }
 
-interface BaseInputsRowProps {
-  defaultTitle?: string;
-  labels: string[];
-  milestone: string | null;
-  type: "add" | "edit";
-  onRemoveLabel: (label: string) => void;
-}
-
-interface AddInputsRowProps extends BaseInputsRowProps {
-  type: "add";
-}
-
-interface EditInputsRowProps extends BaseInputsRowProps {
-  type: "edit";
-  id: string;
-}
-
-type InputsRowProps = AddInputsRowProps | EditInputsRowProps;
-
 function InputsRow({
   labels,
   milestone,
-  defaultTitle,
   onRemoveLabel,
-  ...props
-}: InputsRowProps) {
+}: {
+  labels: string[];
+  milestone: string | null;
+  onRemoveLabel: (label: string) => void;
+}) {
   return (
     <TableRow>
-      <input hidden readOnly name="type" form="issue-form" value={props.type} />
-      {props.type === "edit" && (
-        <input hidden readOnly name="id" form="issue-form" value={props.id} />
-      )}
-
       <TableCell>
         <Input
           type="text"
           name="title"
           placeholder="Enter new title"
-          className="w-full"
+          className="w-40"
           form="issue-form"
           onKeyDown={(e) => {
             if (e.key === "Enter") {
@@ -165,7 +119,6 @@ function InputsRow({
               e.currentTarget.form?.requestSubmit();
             }
           }}
-          defaultValue={defaultTitle}
         />
       </TableCell>
       <TableCell className="w-96">
@@ -213,8 +166,6 @@ export function Issues({
   milestone,
   onRemoveLabel,
 }: IssuesProps) {
-  const isEditing = issues.some((issue) => issue.isEditing);
-
   return (
     <div>
       <h2 className="text-2xl font-bold mb-4">Issues</h2>
@@ -231,22 +182,13 @@ export function Issues({
           </TableHeader>
           <TableBody>
             {issues.map((issue) => (
-              <IssueItem
-                key={issue.id}
-                {...issue}
-                onEdit={() => {
-                  issue.onEdit();
-                }}
-              />
+              <IssueItem key={issue.id} {...issue} />
             ))}
-            {!isEditing && (
-              <InputsRow
-                labels={labels}
-                milestone={milestone}
-                onRemoveLabel={onRemoveLabel}
-                type="add"
-              />
-            )}
+            <InputsRow
+              labels={labels}
+              milestone={milestone}
+              onRemoveLabel={onRemoveLabel}
+            />
           </TableBody>
         </Table>
       </div>

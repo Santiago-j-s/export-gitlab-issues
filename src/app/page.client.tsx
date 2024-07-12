@@ -74,8 +74,7 @@ type IssueAction =
       issue: Pick<Issue, "title" | "labels" | "description" | "milestone">;
     }
   | { type: "REMOVE_ISSUE"; id: string }
-  | { type: "CLEAR_ISSUES" }
-  | { type: "EDIT_ISSUE"; id: string };
+  | { type: "CLEAR_ISSUES" };
 
 function getIssuesFromStorage() {
   return JSON.parse(localStorage.getItem("issues") ?? "[]") as Issue[];
@@ -86,13 +85,10 @@ const issueLabels = getIssuesFromStorage();
 function useIssues() {
   const initialIssues = useSyncExternalStore(emptySubscribe, () => issueLabels);
 
-  const initialIssuesWithActions = initialIssues.map((issue) => ({
+  const initialIssuesWithOnRemove = initialIssues.map((issue) => ({
     ...issue,
     onRemove: () => {
       dispatchIssues({ type: "REMOVE_ISSUE", id: issue.id });
-    },
-    onEdit() {
-      dispatchIssues({ type: "EDIT_ISSUE", id: issue.id });
     },
   }));
 
@@ -110,9 +106,6 @@ function useIssues() {
               onRemove: () => {
                 dispatchIssues({ type: "REMOVE_ISSUE", id });
               },
-              onEdit: () => {
-                dispatchIssues({ type: "EDIT_ISSUE", id });
-              },
             },
           ];
         }
@@ -120,18 +113,13 @@ function useIssues() {
           return state.filter((issue) => issue.id !== action.id);
         case "CLEAR_ISSUES":
           return [];
-        case "EDIT_ISSUE":
-          return state.map((issue) => ({
-            ...issue,
-            isEditing: issue.id === action.id,
-          }));
         default:
           // @ts-expect-error - check for unhandled action types
           // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
           throw new Error(`Unhandled action type: ${action.type}`);
       }
     },
-    initialIssuesWithActions ?? []
+    initialIssuesWithOnRemove ?? []
   );
 
   // save issues to local storage
@@ -149,11 +137,7 @@ function useIssues() {
     dispatchIssues({ type: "CLEAR_ISSUES" });
   };
 
-  const removeIssue = (id: string) => {
-    dispatchIssues({ type: "REMOVE_ISSUE", id });
-  };
-
-  return [issues, addIssue, clearIssues, removeIssue] as const;
+  return [issues, addIssue, clearIssues] as const;
 }
 
 function createCsv(issues: Issue[]) {
@@ -170,7 +154,7 @@ function createCsv(issues: Issue[]) {
 
 export default function ClientPage() {
   const [labels, addLabel, removeLabel, resetLabels] = useLabels();
-  const [issues, addIssue, clearIssues, removeIssue] = useIssues();
+  const [issues, addIssue, clearIssues] = useIssues();
   const [milestone, setMilestone] = useState<string | null>(null);
   const [exportUrl, setExportUrl] = useState<string | null>(null);
 
@@ -205,12 +189,6 @@ export default function ClientPage() {
           id="issue-form"
           action={(data: FormData) => {
             const labels = data.get("label");
-            const type = data.get("type");
-            const id = data.get("id");
-
-            if (type === "edit" && !!id) {
-              removeIssue(id as string);
-            }
 
             addIssue({
               title: data.get("title") as string,
