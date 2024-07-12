@@ -33,7 +33,7 @@ const getIssuesFromCsv = async (csvText: string, labels: string) => {
       labels: ["string"],
       description: "string",
     }
-  )}\n\nExcept the title, all other fields are optional.\n\nYou can only use for labels the following values (separated by ;): ${labels}.\nAdd new labels is not allowed. If there are not labels who represents the issue, just leave labels empty.\n\nTitles should be unique, required, brief, but representative of the issue.\n\nThe description should contain all the information that you can collect of the issue from the provided csv.\n\nAll the generated result should be in english, so if the provided csv is in another language, please translate it.`;
+  )}\n\nExcept the title, all other fields are optional.\n\nYou can only use for labels the following values (separated by ;): ${labels}.\nAdd new labels is not allowed. If there are not labels who represents the issue, just leave labels empty.\n\nTitles should be unique, required, brief, but representative of the issue.\n\nThe description should contain all the information that you can collect of the issue from the provided csv.\n\nTitle and description must be in english, so you should make some translations if the original text is in another language.`;
 
   console.log(systemContent);
 
