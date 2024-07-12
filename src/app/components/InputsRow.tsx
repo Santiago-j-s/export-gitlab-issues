@@ -22,7 +22,7 @@ export function InputsRow({
           type="text"
           name="title"
           placeholder="Enter new title"
-          className="w-full"
+          className="w-full min-w-64"
           form="issue-form"
           onKeyDown={(e) => {
             if (e.key === "Enter") {
@@ -57,7 +57,7 @@ export function InputsRow({
           onRemove={onRemoveLabel}
         />
       </TableCell>
-      <TableCell className="w-36">
+      <TableCell className="w-28">
         <p className="text-zinc-300">{milestone}</p>
       </TableCell>
       <TableCell>
