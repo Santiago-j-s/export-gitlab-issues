@@ -1,144 +1,22 @@
 "use client";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Download, Trash2 } from "lucide-react";
-import { useEffect, useReducer, useState, useSyncExternalStore } from "react";
-import { Issue, Issues } from "./components/Issues";
+import { useEffect, useState } from "react";
+import { EditModalDialog } from "./components/EditModalDialog";
+import { Issue } from "./components/IssueItem";
+import { Issues } from "./components/Issues";
+import { Labels } from "./components/Labels";
 import { LabelsAndMilestoneForm } from "./components/LabelsAndMilestoneForm";
-
-function emptySubscribe() {
-  return () => {};
-}
-
-function getLabelsFromStorage() {
-  return JSON.parse(localStorage.getItem("labels") ?? "[]") as string[];
-}
-
-const storageLabels = getLabelsFromStorage();
-
-function useLabels() {
-  const initialLabels = useSyncExternalStore(
-    emptySubscribe,
-    () => storageLabels
-  );
-
-  const [labels, dispatchLabels] = useReducer(
-    (
-      state: string[],
-      action:
-        | {
-            type: "ADD_LABEL";
-            label: string;
-          }
-        | { type: "REMOVE_LABEL"; label: string }
-        | { type: "RESET_LABELS" }
-    ) => {
-      switch (action.type) {
-        case "ADD_LABEL":
-          return [...state, action.label];
-        case "REMOVE_LABEL":
-          return state.filter((label) => label !== action.label);
-        case "RESET_LABELS":
-          return [];
-        default:
-          // @ts-expect-error - check for unhandled action types
-          // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-          throw new Error(`Unhandled action type: ${action.type}`);
-      }
-    },
-    initialLabels ?? []
-  );
-
-  // save labels to local storage
-  useEffect(() => {
-    localStorage.setItem("labels", JSON.stringify(labels));
-  }, [labels]);
-
-  const addLabel = (label: string) => {
-    dispatchLabels({ type: "ADD_LABEL", label });
-  };
-
-  const removeLabel = (label: string) => {
-    dispatchLabels({ type: "REMOVE_LABEL", label });
-  };
-
-  const resetLabels = () => {
-    dispatchLabels({ type: "RESET_LABELS" });
-  };
-
-  return [labels, addLabel, removeLabel, resetLabels] as const;
-}
-
-type IssueAction =
-  | {
-      type: "ADD_ISSUE";
-      issue: Pick<Issue, "title" | "labels" | "description" | "milestone">;
-    }
-  | { type: "REMOVE_ISSUE"; id: string }
-  | { type: "CLEAR_ISSUES" };
-
-function getIssuesFromStorage() {
-  return JSON.parse(localStorage.getItem("issues") ?? "[]") as Issue[];
-}
-
-const issueLabels = getIssuesFromStorage();
-
-function useIssues() {
-  const initialIssues = useSyncExternalStore(emptySubscribe, () => issueLabels);
-
-  const initialIssuesWithOnRemove = initialIssues.map((issue) => ({
-    ...issue,
-    onRemove: () => {
-      dispatchIssues({ type: "REMOVE_ISSUE", id: issue.id });
-    },
-  }));
-
-  const [issues, dispatchIssues] = useReducer(
-    (state: Issue[], action: IssueAction) => {
-      switch (action.type) {
-        case "ADD_ISSUE": {
-          const id = crypto.randomUUID();
-
-          return [
-            ...state,
-            {
-              ...action.issue,
-              id,
-              onRemove: () => {
-                dispatchIssues({ type: "REMOVE_ISSUE", id });
-              },
-            },
-          ];
-        }
-        case "REMOVE_ISSUE":
-          return state.filter((issue) => issue.id !== action.id);
-        case "CLEAR_ISSUES":
-          return [];
-        default:
-          // @ts-expect-error - check for unhandled action types
-          // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-          throw new Error(`Unhandled action type: ${action.type}`);
-      }
-    },
-    initialIssuesWithOnRemove ?? []
-  );
-
-  // save issues to local storage
-  useEffect(() => {
-    localStorage.setItem("issues", JSON.stringify(issues));
-  }, [issues]);
-
-  const addIssue = (
-    issue: Extract<IssueAction, { type: "ADD_ISSUE" }>["issue"]
-  ) => {
-    dispatchIssues({ type: "ADD_ISSUE", issue });
-  };
-
-  const clearIssues = () => {
-    dispatchIssues({ type: "CLEAR_ISSUES" });
-  };
-
-  return [issues, addIssue, clearIssues] as const;
-}
+import { useIssues } from "./hooks/useIssues";
+import { useLabels } from "./hooks/useLabels";
 
 function createCsv(issues: Issue[]) {
   const headers = ["title", "due_date", "milestone", "description"].join(",");
@@ -154,7 +32,8 @@ function createCsv(issues: Issue[]) {
 
 export default function ClientPage() {
   const [labels, addLabel, removeLabel, resetLabels] = useLabels();
-  const [issues, addIssue, clearIssues] = useIssues();
+  const [issues, addIssue, clearIssues, { editing, setEditing }, removeIssue] =
+    useIssues();
   const [milestone, setMilestone] = useState<string | null>(null);
   const [exportUrl, setExportUrl] = useState<string | null>(null);
 
@@ -213,6 +92,135 @@ export default function ClientPage() {
           <Trash2 className="mr-2 h-4 w-4" /> Clear Issues
         </Button>
       </div>
+
+      <Dialog
+        open={!!editing}
+        onOpenChange={(open) => {
+          if (!open) {
+            setEditing(null);
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Editing issue</DialogTitle>
+          </DialogHeader>
+          <form
+            className="flex flex-col gap-4"
+            action={(data: FormData) => {
+              const labels = data.get("label");
+              const title = data.get("title") as string;
+              const description = data.get("description") as string;
+              const milestone = data.get("milestone") as string;
+
+              const newIssue = {
+                id: editing?.id,
+                title,
+                description,
+                labels:
+                  labels && typeof labels === "string" ? labels.split(",") : [],
+                milestone,
+              };
+
+              removeIssue(editing!.id);
+              addIssue(newIssue);
+
+              setEditing(null);
+            }}
+          >
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="title">Title</Label>
+              <Input
+                type="text"
+                name="title"
+                placeholder="Edit title"
+                className="w-full"
+                defaultValue={editing?.title}
+              />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="description">Labels</Label>
+              {editing?.labels && editing.labels.length > 0 && (
+                <input
+                  type="hidden"
+                  name="label"
+                  value={editing.labels.join(",")}
+                  readOnly
+                />
+              )}
+              <Input
+                type="text"
+                id="label"
+                name="label"
+                placeholder="Add label"
+                className="w-full"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    const label = e.currentTarget.value;
+                    if (label) {
+                      setEditing({
+                        ...editing,
+                        labels: [...(editing?.labels ?? []), label],
+                      } as Issue);
+                      e.currentTarget.value = "";
+                    }
+                  }
+                }}
+              />
+              <Labels
+                labels={editing?.labels ?? []}
+                onRemove={(label) => {
+                  setEditing({
+                    ...editing,
+                    labels: editing?.labels.filter((l) => l !== label) ?? [],
+                  } as Issue);
+                }}
+              />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="milestone">Milestone</Label>
+              <Input
+                type="text"
+                id="milestone"
+                name="milestone"
+                placeholder="Edit milestone"
+                className="w-full"
+                onChange={(e) => {
+                  setMilestone(e.target.value);
+                }}
+                defaultValue={editing?.milestone ?? ""}
+              />
+            </div>
+
+            <Button type="submit">Save changes</Button>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <EditModalDialog
+        editing={editing}
+        onAddLabel={(label) => {
+          setEditing({
+            ...editing,
+            labels: [...(editing?.labels ?? []), label],
+          } as Issue);
+        }}
+        onClose={() => setEditing(null)}
+        onRemoveLabel={(label) => {
+          setEditing({
+            ...editing,
+            labels: editing?.labels.filter((l) => l !== label) ?? [],
+          } as Issue);
+        }}
+        onUpdate={(issue) => {
+          removeIssue(issue.id);
+          addIssue(issue);
+          setEditing(null);
+        }}
+      />
     </>
   );
 }
