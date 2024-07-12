@@ -27,18 +27,22 @@ interface IdleFormState extends BaseFormState {
 export type FormState = SuccessFormState | ErrorFormState | IdleFormState;
 
 const getIssuesFromCsv = async (csvText: string, labels: string) => {
+  const systemContent = `You transform any csv in a set of gitlab issues. From the following text of the csv, return only an array of objects with the following format. Since it's an array, your answer must start with "[" char, and ends with "]" char.:\n\n${JSON.stringify(
+    {
+      title: "string",
+      labels: ["string"],
+      description: "string",
+    }
+  )}\n\nExcept the title, all other fields are optional.\n\nYou can only use for labels the following values (separated by ;): ${labels}.\nAdd new labels is not allowed. If there are not labels who represents the issue, just leave labels empty.\n\nTitles should be unique, required, brief, but representative of the issue.\n\nThe description should contain all the information that you can collect of the issue from the provided csv.\n\nAll the generated result should be in english, so if the provided csv is in another language, please translate it.`;
+
+  console.log(systemContent);
+
   const completion = await openai.chat.completions.create({
-    model: "gpt-3.5-turbo-0125",
+    model: "gpt-4o",
     messages: [
       {
         role: "system",
-        content: `You transform any csv in a set of gitlab issues. From the following text of the csv, return only an array of objects with the following format. Since it's an array, your answer must start with "[" char, and ends with "]" char.:\n\n${JSON.stringify(
-          {
-            title: "string",
-            labels: ["string"],
-            description: "string",
-          }
-        )}\n\nExcept the title, all other fields are optional.\n\nYou can only use for labels the following values (separated by ;): ${labels}.\nAdd new labels is not allowed. If there are not labels who represents the issue, just leave labels empty.\n\nTitles should be unique, required, brief, but representative of the issue.\n\nThe description should contain all the information that you can collect of the issue from the provided csv.\n\nAll the generated result should be in english, so if the provided csv is in another language, please translate it.`,
+        content: systemContent,
       },
       {
         role: "user",
@@ -69,9 +73,25 @@ export const inferFromCsv = async (formData: FormData): Promise<FormState> => {
   try {
     const inferResult = await getIssuesFromCsv(csvText, labels);
     if (!inferResult) {
-      throw new Error("No result");
+      return {
+        status: "error" as const,
+        message: "The result is empty",
+      };
     }
     strResult = inferResult;
+
+    console.log(strResult);
+
+    const openArrChar = strResult.indexOf("[");
+    const closeArrChar = strResult.lastIndexOf("]");
+    if (openArrChar === -1 || closeArrChar === -1) {
+      return {
+        status: "error" as const,
+        message: "The result is not an array",
+      };
+    }
+
+    strResult = strResult.slice(openArrChar, closeArrChar + 1);
   } catch (e) {
     return {
       status: "error" as const,
@@ -100,6 +120,8 @@ export const inferFromCsv = async (formData: FormData): Promise<FormState> => {
         .join(";"),
     };
   }
+
+  console.log(result.data);
 
   return {
     status: "success" as const,

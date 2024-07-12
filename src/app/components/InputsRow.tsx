@@ -57,7 +57,7 @@ export function InputsRow({
           onRemove={onRemoveLabel}
         />
       </TableCell>
-      <TableCell>
+      <TableCell className="w-36">
         <p className="text-zinc-300">{milestone}</p>
       </TableCell>
       <TableCell>

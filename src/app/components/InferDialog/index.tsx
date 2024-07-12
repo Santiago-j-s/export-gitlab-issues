@@ -34,14 +34,30 @@ export const InferDialog = ({
 
       if (retVal.status === "success") {
         const issues: Omit<Issue, "onRemove" | "onEdit">[] = retVal.result.map(
-          (result) => ({
-            id: crypto.randomUUID(),
-            title: result.title,
-            description: result.description ?? "",
-            labels:
-              result.labels?.filter((label) => labels.includes(label)) ?? [],
-            milestone,
-          })
+          (result) => {
+            const originalLabels = [...labels];
+            const resultLabels = result.labels ?? [];
+            const labelsToUse: string[] = [];
+
+            resultLabels.forEach((label) => {
+              const originalLabel = originalLabels.find(
+                (_label) => _label.toLowerCase() === label.toLowerCase()
+              );
+
+              if (originalLabel) {
+                labelsToUse.push(originalLabel);
+              }
+            });
+
+            return {
+              id: crypto.randomUUID(),
+              title: result.title,
+              description: result.description ?? "",
+              labels:
+                result.labels?.filter((label) => labels.includes(label)) ?? [],
+              milestone,
+            };
+          }
         );
 
         onSuccess(issues);
