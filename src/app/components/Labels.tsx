@@ -1,36 +1,18 @@
 import { Badge } from "@/components/ui/badge";
-import { X } from "lucide-react";
 
-function LabelBadge({
-  label,
-  onRemove,
-}: {
-  label: string;
-  onRemove?: (label: string) => void;
-}) {
+function LabelBadge({ label }: { label: string }) {
   return (
-    <Badge
-      variant="secondary"
-      onClick={onRemove ? () => onRemove(label) : undefined}
-      className="shrink-0"
-    >
+    <Badge variant="secondary" className="shrink-0">
       {label}
-      {onRemove ? <X className="size-3 pointer-events-none" /> : null}
     </Badge>
   );
 }
 
-export function Labels({
-  labels,
-  onRemove,
-}: {
-  labels: string[];
-  onRemove?: (label: string) => void;
-}) {
+export function Labels({ labels }: { labels: string[] }) {
   return (
     <div className="flex gap-2 w-96 max-w-96 flex-wrap">
       {labels.map((label, i) => (
-        <LabelBadge key={`${label}-${i}`} label={label} onRemove={onRemove} />
+        <LabelBadge key={`${label}-${i}`} label={label} />
       ))}
     </div>
   );

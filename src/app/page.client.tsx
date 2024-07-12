@@ -1,19 +1,10 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Download, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { EditModalDialog } from "./components/EditModalDialog";
 import { Issue } from "./components/IssueItem";
 import { Issues } from "./components/Issues";
-import { Labels } from "./components/Labels";
 import { LabelsAndMilestoneForm } from "./components/LabelsAndMilestoneForm";
 import { useIssues } from "./hooks/useIssues";
 import { useLabels } from "./hooks/useLabels";
@@ -113,6 +104,9 @@ export default function ClientPage() {
           addIssue(issue);
           setEditing(null);
         }}
+        labelOptions={Array.from(
+          new Set([...labels, ...(editing?.labels ?? [])].filter(Boolean))
+        )}
       />
     </>
   );

@@ -1,17 +1,20 @@
 import { Input } from "@/components/ui/input";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
-import { Labels } from "./Labels";
+import { useState } from "react";
+import { SelectLabels } from "./SelectLabels";
 
 export function InputsRow({
-  labels,
+  labelOptions,
   milestone,
   onRemoveLabel,
 }: {
-  labels: string[];
+  labelOptions: string[];
   milestone: string | null;
   onRemoveLabel: (label: string) => void;
 }) {
+  const [selectedLabels, setSelectedLabels] = useState<string[]>([]);
+
   return (
     <TableRow>
       <TableCell>
@@ -30,16 +33,29 @@ export function InputsRow({
         />
       </TableCell>
       <TableCell className="w-96">
-        {labels.length > 0 && (
+        {selectedLabels.length > 0 && (
           <input
             form="issue-form"
             type="hidden"
             name="label"
-            value={labels.join(",")}
+            value={selectedLabels.join(",")}
             readOnly
           />
         )}
-        <Labels labels={labels} onRemove={onRemoveLabel} />
+        <SelectLabels
+          options={labelOptions.map((label) => ({
+            isSelected: selectedLabels.includes(label),
+            label,
+          }))}
+          onClick={(label) => {
+            setSelectedLabels((prev) =>
+              prev.includes(label)
+                ? prev.filter((l) => l !== label)
+                : [...prev, label]
+            );
+          }}
+          onRemove={onRemoveLabel}
+        />
       </TableCell>
       <TableCell>
         <p className="text-zinc-300">{milestone}</p>

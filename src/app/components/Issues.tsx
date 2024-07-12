@@ -37,14 +37,14 @@ export function Issues({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {issues.map((issue) => (
-              <IssueItem key={issue.id} {...issue} />
-            ))}
             <InputsRow
-              labels={labels}
+              labelOptions={labels}
               milestone={milestone}
               onRemoveLabel={onRemoveLabel}
             />
+            {issues.map((issue) => (
+              <IssueItem key={issue.id} {...issue} />
+            ))}
           </TableBody>
         </Table>
       </div>
