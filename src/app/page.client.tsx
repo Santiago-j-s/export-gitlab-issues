@@ -1,8 +1,16 @@
 "use client";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Download, Trash2 } from "lucide-react";
 import { useEffect, useReducer, useState, useSyncExternalStore } from "react";
-import { Issue, Issues } from "./components/Issues";
+import { Issue, Issues, Labels } from "./components/Issues";
 import { LabelsAndMilestoneForm } from "./components/LabelsAndMilestoneForm";
 
 function emptySubscribe() {
@@ -77,18 +85,28 @@ type IssueAction =
   | { type: "CLEAR_ISSUES" };
 
 function getIssuesFromStorage() {
-  return JSON.parse(localStorage.getItem("issues") ?? "[]") as Issue[];
+  return JSON.parse(localStorage.getItem("issues") ?? "[]") as Omit<
+    Issue,
+    "onRemove" | "onEdit"
+  >[];
 }
 
 const issueLabels = getIssuesFromStorage();
 
 function useIssues() {
   const initialIssues = useSyncExternalStore(emptySubscribe, () => issueLabels);
+  const [openEditModal, setOpenEditModal] = useState<Omit<
+    Issue,
+    "onRemove" | "onEdit"
+  > | null>(null);
 
   const initialIssuesWithOnRemove = initialIssues.map((issue) => ({
     ...issue,
     onRemove: () => {
       dispatchIssues({ type: "REMOVE_ISSUE", id: issue.id });
+    },
+    onEdit: () => {
+      setOpenEditModal(issue);
     },
   }));
 
@@ -105,6 +123,9 @@ function useIssues() {
               id,
               onRemove: () => {
                 dispatchIssues({ type: "REMOVE_ISSUE", id });
+              },
+              onEdit: () => {
+                setOpenEditModal({ ...action.issue, id });
               },
             },
           ];
@@ -137,7 +158,20 @@ function useIssues() {
     dispatchIssues({ type: "CLEAR_ISSUES" });
   };
 
-  return [issues, addIssue, clearIssues] as const;
+  const removeIssue = (id: string) => {
+    dispatchIssues({ type: "REMOVE_ISSUE", id });
+  };
+
+  return [
+    issues,
+    addIssue,
+    clearIssues,
+    {
+      editing: openEditModal,
+      setEditing: setOpenEditModal,
+    },
+    removeIssue,
+  ] as const;
 }
 
 function createCsv(issues: Issue[]) {
@@ -154,7 +188,8 @@ function createCsv(issues: Issue[]) {
 
 export default function ClientPage() {
   const [labels, addLabel, removeLabel, resetLabels] = useLabels();
-  const [issues, addIssue, clearIssues] = useIssues();
+  const [issues, addIssue, clearIssues, { editing, setEditing }, removeIssue] =
+    useIssues();
   const [milestone, setMilestone] = useState<string | null>(null);
   const [exportUrl, setExportUrl] = useState<string | null>(null);
 
@@ -213,6 +248,113 @@ export default function ClientPage() {
           <Trash2 className="mr-2 h-4 w-4" /> Clear Issues
         </Button>
       </div>
+
+      <Dialog
+        open={!!editing}
+        onOpenChange={(open) => {
+          if (!open) {
+            setEditing(null);
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Editing issue</DialogTitle>
+          </DialogHeader>
+          <form
+            className="flex flex-col gap-4"
+            action={(data: FormData) => {
+              const labels = data.get("label");
+              const title = data.get("title") as string;
+              const description = data.get("description") as string;
+              const milestone = data.get("milestone") as string;
+
+              const newIssue = {
+                id: editing?.id,
+                title,
+                description,
+                labels:
+                  labels && typeof labels === "string" ? labels.split(",") : [],
+                milestone,
+              };
+
+              removeIssue(editing!.id);
+              addIssue(newIssue);
+
+              setEditing(null);
+            }}
+          >
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="title">Title</Label>
+              <Input
+                type="text"
+                name="title"
+                placeholder="Edit title"
+                className="w-full"
+                defaultValue={editing?.title}
+              />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="description">Labels</Label>
+              {editing?.labels && editing.labels.length > 0 && (
+                <input
+                  type="hidden"
+                  name="label"
+                  value={editing.labels.join(",")}
+                  readOnly
+                />
+              )}
+              <Input
+                type="text"
+                id="label"
+                name="label"
+                placeholder="Add label"
+                className="w-full"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    const label = e.currentTarget.value;
+                    if (label) {
+                      setEditing({
+                        ...editing,
+                        labels: [...(editing?.labels ?? []), label],
+                      } as Issue);
+                      e.currentTarget.value = "";
+                    }
+                  }
+                }}
+              />
+              <Labels
+                labels={editing?.labels ?? []}
+                onRemove={(label) => {
+                  setEditing({
+                    ...editing,
+                    labels: editing?.labels.filter((l) => l !== label) ?? [],
+                  } as Issue);
+                }}
+              />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="milestone">Milestone</Label>
+              <Input
+                type="text"
+                id="milestone"
+                name="milestone"
+                placeholder="Edit milestone"
+                className="w-full"
+                onChange={(e) => {
+                  setMilestone(e.target.value);
+                }}
+                defaultValue={editing?.milestone ?? ""}
+              />
+            </div>
+
+            <Button type="submit">Save changes</Button>
+          </form>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

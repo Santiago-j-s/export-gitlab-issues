@@ -11,9 +11,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { X } from "lucide-react";
+import { Pencil, Trash2, X } from "lucide-react";
 
-function Labels({
+export function Labels({
   labels,
   onRemove,
 }: {
@@ -55,6 +55,7 @@ export interface Issue {
   description: string;
   milestone: string;
   onRemove: () => void;
+  onEdit: () => void;
 }
 
 function IssueItem({
@@ -64,6 +65,7 @@ function IssueItem({
   description,
   milestone,
   onRemove,
+  onEdit,
 }: Issue) {
   return (
     <TableRow id={`${id}`}>
@@ -79,7 +81,17 @@ function IssueItem({
       <TableCell>
         <p className="text-zinc-300">{description}</p>
       </TableCell>
-      <TableCell>
+      <TableCell className="flex gap-4">
+        <Button
+          size="icon"
+          onClick={(e) => {
+            e.preventDefault();
+            onEdit();
+          }}
+        >
+          <Pencil />
+        </Button>
+
         <Button
           variant="destructive"
           size="icon"
@@ -88,7 +100,7 @@ function IssueItem({
             onRemove();
           }}
         >
-          <X />
+          <Trash2 />
         </Button>
       </TableCell>
     </TableRow>
@@ -111,7 +123,7 @@ function InputsRow({
           type="text"
           name="title"
           placeholder="Enter new title"
-          className="w-40"
+          className="w-full"
           form="issue-form"
           onKeyDown={(e) => {
             if (e.key === "Enter") {
