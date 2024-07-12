@@ -9,170 +9,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Download, Trash2 } from "lucide-react";
-import { useEffect, useReducer, useState, useSyncExternalStore } from "react";
-import { Issue, Issues, Labels } from "./components/Issues";
+import { useEffect, useState } from "react";
+import { EditModalDialog } from "./components/EditModalDialog";
+import { Issue } from "./components/IssueItem";
+import { Issues } from "./components/Issues";
+import { Labels } from "./components/Labels";
 import { LabelsAndMilestoneForm } from "./components/LabelsAndMilestoneForm";
-
-function emptySubscribe() {
-  return () => {};
-}
-
-function getLabelsFromStorage() {
-  return JSON.parse(localStorage.getItem("labels") ?? "[]") as string[];
-}
-
-const storageLabels = getLabelsFromStorage();
-
-function useLabels() {
-  const initialLabels = useSyncExternalStore(
-    emptySubscribe,
-    () => storageLabels
-  );
-
-  const [labels, dispatchLabels] = useReducer(
-    (
-      state: string[],
-      action:
-        | {
-            type: "ADD_LABEL";
-            label: string;
-          }
-        | { type: "REMOVE_LABEL"; label: string }
-        | { type: "RESET_LABELS" }
-    ) => {
-      switch (action.type) {
-        case "ADD_LABEL":
-          return [...state, action.label];
-        case "REMOVE_LABEL":
-          return state.filter((label) => label !== action.label);
-        case "RESET_LABELS":
-          return [];
-        default:
-          // @ts-expect-error - check for unhandled action types
-          // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-          throw new Error(`Unhandled action type: ${action.type}`);
-      }
-    },
-    initialLabels ?? []
-  );
-
-  // save labels to local storage
-  useEffect(() => {
-    localStorage.setItem("labels", JSON.stringify(labels));
-  }, [labels]);
-
-  const addLabel = (label: string) => {
-    dispatchLabels({ type: "ADD_LABEL", label });
-  };
-
-  const removeLabel = (label: string) => {
-    dispatchLabels({ type: "REMOVE_LABEL", label });
-  };
-
-  const resetLabels = () => {
-    dispatchLabels({ type: "RESET_LABELS" });
-  };
-
-  return [labels, addLabel, removeLabel, resetLabels] as const;
-}
-
-type IssueAction =
-  | {
-      type: "ADD_ISSUE";
-      issue: Pick<Issue, "title" | "labels" | "description" | "milestone">;
-    }
-  | { type: "REMOVE_ISSUE"; id: string }
-  | { type: "CLEAR_ISSUES" };
-
-function getIssuesFromStorage() {
-  return JSON.parse(localStorage.getItem("issues") ?? "[]") as Omit<
-    Issue,
-    "onRemove" | "onEdit"
-  >[];
-}
-
-const issueLabels = getIssuesFromStorage();
-
-function useIssues() {
-  const initialIssues = useSyncExternalStore(emptySubscribe, () => issueLabels);
-  const [openEditModal, setOpenEditModal] = useState<Omit<
-    Issue,
-    "onRemove" | "onEdit"
-  > | null>(null);
-
-  const initialIssuesWithOnRemove = initialIssues.map((issue) => ({
-    ...issue,
-    onRemove: () => {
-      dispatchIssues({ type: "REMOVE_ISSUE", id: issue.id });
-    },
-    onEdit: () => {
-      setOpenEditModal(issue);
-    },
-  }));
-
-  const [issues, dispatchIssues] = useReducer(
-    (state: Issue[], action: IssueAction) => {
-      switch (action.type) {
-        case "ADD_ISSUE": {
-          const id = crypto.randomUUID();
-
-          return [
-            ...state,
-            {
-              ...action.issue,
-              id,
-              onRemove: () => {
-                dispatchIssues({ type: "REMOVE_ISSUE", id });
-              },
-              onEdit: () => {
-                setOpenEditModal({ ...action.issue, id });
-              },
-            },
-          ];
-        }
-        case "REMOVE_ISSUE":
-          return state.filter((issue) => issue.id !== action.id);
-        case "CLEAR_ISSUES":
-          return [];
-        default:
-          // @ts-expect-error - check for unhandled action types
-          // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-          throw new Error(`Unhandled action type: ${action.type}`);
-      }
-    },
-    initialIssuesWithOnRemove ?? []
-  );
-
-  // save issues to local storage
-  useEffect(() => {
-    localStorage.setItem("issues", JSON.stringify(issues));
-  }, [issues]);
-
-  const addIssue = (
-    issue: Extract<IssueAction, { type: "ADD_ISSUE" }>["issue"]
-  ) => {
-    dispatchIssues({ type: "ADD_ISSUE", issue });
-  };
-
-  const clearIssues = () => {
-    dispatchIssues({ type: "CLEAR_ISSUES" });
-  };
-
-  const removeIssue = (id: string) => {
-    dispatchIssues({ type: "REMOVE_ISSUE", id });
-  };
-
-  return [
-    issues,
-    addIssue,
-    clearIssues,
-    {
-      editing: openEditModal,
-      setEditing: setOpenEditModal,
-    },
-    removeIssue,
-  ] as const;
-}
+import { useIssues } from "./hooks/useIssues";
+import { useLabels } from "./hooks/useLabels";
 
 function createCsv(issues: Issue[]) {
   const headers = ["title", "due_date", "milestone", "description"].join(",");
@@ -355,6 +199,28 @@ export default function ClientPage() {
           </form>
         </DialogContent>
       </Dialog>
+
+      <EditModalDialog
+        editing={editing}
+        onAddLabel={(label) => {
+          setEditing({
+            ...editing,
+            labels: [...(editing?.labels ?? []), label],
+          } as Issue);
+        }}
+        onClose={() => setEditing(null)}
+        onRemoveLabel={(label) => {
+          setEditing({
+            ...editing,
+            labels: editing?.labels.filter((l) => l !== label) ?? [],
+          } as Issue);
+        }}
+        onUpdate={(issue) => {
+          removeIssue(issue.id);
+          addIssue(issue);
+          setEditing(null);
+        }}
+      />
     </>
   );
 }
