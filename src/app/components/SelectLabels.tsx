@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 
@@ -14,10 +13,10 @@ export const SelectLabels = ({
   return (
     <div className="flex gap-2 w-96 max-w-96 flex-wrap">
       {options.map(({ label, isSelected }, i) => (
-        <Badge
-          variant={isSelected ? "secondary" : "outline"}
-          className="shrink-0 cursor-pointer"
+        <Button
           key={`${label}-${i}`}
+          variant={isSelected ? "secondary" : "outline"}
+          size="sm"
           onClick={() => onClick(label)}
         >
           {label}
@@ -33,7 +32,7 @@ export const SelectLabels = ({
               <X className="size-3 pointer-events-none" />
             </Button>
           ) : null}
-        </Badge>
+        </Button>
       ))}
     </div>
   );

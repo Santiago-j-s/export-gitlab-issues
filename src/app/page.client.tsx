@@ -1,8 +1,9 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { Download, Trash2 } from "lucide-react";
+import { Bot, Download, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { EditModalDialog } from "./components/EditModalDialog";
+import { InferDialog } from "./components/InferDialog";
 import { Issue } from "./components/IssueItem";
 import { Issues } from "./components/Issues";
 import { LabelsAndMilestoneForm } from "./components/LabelsAndMilestoneForm";
@@ -55,9 +56,24 @@ export default function ClientPage() {
               <Download className="mr-2 h-4 w-4" /> Export Issues
             </a>
           </Button>
+
           <Button variant="secondary" onClick={clearIssues}>
             <Trash2 className="mr-2 h-4 w-4" /> Clear Issues
           </Button>
+
+          <InferDialog
+            trigger={
+              <Button variant="secondary" onClick={clearIssues}>
+                <Bot className="mr-2 h-4 w-4" /> AI Infer
+              </Button>
+            }
+            labels={labels}
+            milestone={milestone ?? ""}
+            onSuccess={(newIssues) => {
+              clearIssues();
+              newIssues.forEach(addIssue);
+            }}
+          />
         </div>
       </div>
 
