@@ -74,8 +74,9 @@ export const inferFromCsv = async (formData: FormData): Promise<FormState> => {
   const apiKey = formData.get("apiKey") as string | undefined;
 
   if (
-    !apiKey ||
-    (process.env.NODE_ENV !== "development" && !process.env.OPENAI_API_KEY)
+    !apiKey &&
+    process.env.NODE_ENV === "development" &&
+    !process.env.OPENAI_API_KEY
   ) {
     return {
       status: "error" as const,
