@@ -2,10 +2,6 @@
 import OpenAI from "openai";
 import { z } from "zod";
 
-const openai = new OpenAI({
-  apiKey: process.env["OPENAI_API_KEY"],
-});
-
 interface ErrorFormState {
   status: "error";
   message: string;
@@ -17,7 +13,9 @@ interface BaseFormState {
 
 interface SuccessFormState extends BaseFormState {
   status: "success";
-  result: z.infer<typeof resultSchema>;
+  result: (z.infer<typeof resultSchema>[number] & {
+    milestone: string;
+  })[];
 }
 
 interface IdleFormState extends BaseFormState {
@@ -26,7 +24,11 @@ interface IdleFormState extends BaseFormState {
 
 export type FormState = SuccessFormState | ErrorFormState | IdleFormState;
 
-const getIssuesFromCsv = async (csvText: string, labels: string) => {
+const getIssuesFromCsv = async (
+  csvText: string,
+  labels: string,
+  apiKey: string
+) => {
   const systemContent = `You transform any csv in a set of gitlab issues. From the following text of the csv, return only an array of objects with the following format. Since it's an array, your answer must start with "[" char, and ends with "]" char.:\n\n${JSON.stringify(
     {
       title: "string",
@@ -36,6 +38,10 @@ const getIssuesFromCsv = async (csvText: string, labels: string) => {
   )}\n\nExcept the title, all other fields are optional.\n\nYou can only use for labels the following values (separated by ;): ${labels}.\nAdd new labels is not allowed. If there are not labels who represents the issue, just leave labels empty.\n\nTitles should be unique, required, brief, but representative of the issue.\n\nThe description should contain all the information that you can collect of the issue from the provided csv.\n\nTitle and description must be in english, so you should make some translations if the original text is in another language.`;
 
   console.log(systemContent);
+
+  const openai = new OpenAI({
+    apiKey,
+  });
 
   const completion = await openai.chat.completions.create({
     model: "gpt-4o",
@@ -65,13 +71,31 @@ const resultSchema = z.array(
 );
 
 export const inferFromCsv = async (formData: FormData): Promise<FormState> => {
+  const apiKey = formData.get("apiKey") as string | undefined;
+
+  if (
+    !apiKey ||
+    (process.env.NODE_ENV !== "development" && !process.env.OPENAI_API_KEY)
+  ) {
+    return {
+      status: "error" as const,
+      message: "OpenAI API Key is required",
+    };
+  }
+
   const file = formData.get("file") as File;
   const labels = formData.get("labels") as string;
   const csvText = await file.text();
 
   let strResult: string;
   try {
-    const inferResult = await getIssuesFromCsv(csvText, labels);
+    const inferResult = await getIssuesFromCsv(
+      csvText,
+      labels,
+      (process.env.NODE_ENV === "development"
+        ? process.env.OPENAI_API_KEY
+        : apiKey) as string
+    );
     if (!inferResult) {
       return {
         status: "error" as const,
@@ -125,6 +149,9 @@ export const inferFromCsv = async (formData: FormData): Promise<FormState> => {
 
   return {
     status: "success" as const,
-    result: result.data,
+    result: result.data.map((issue) => ({
+      ...issue,
+      milestone: formData.get("milestone") as string,
+    })),
   };
 };

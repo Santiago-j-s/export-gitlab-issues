@@ -4,6 +4,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { DialogDescription } from "@radix-ui/react-dialog";
 import { ReactNode, useState } from "react";
 import { useFormState } from "react-dom";
 import { Issue } from "../IssueItem";
@@ -55,7 +58,7 @@ export const InferDialog = ({
               description: result.description ?? "",
               labels:
                 result.labels?.filter((label) => labels.includes(label)) ?? [],
-              milestone,
+              milestone: result.milestone,
             };
           }
         );
@@ -73,28 +76,48 @@ export const InferDialog = ({
     <Dialog open={isOpen} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent>
-        <DialogTitle>Infer issues</DialogTitle>
+        <DialogTitle>AI Infer</DialogTitle>
+        <DialogDescription className="mb-2">
+          <p>Infer issues from any CSV file.</p>
+        </DialogDescription>
 
-        <form action={action} className="flex flex-col gap-4">
-          <p>Upload a CSV file to infer issues.</p>
+        <form action={action} className="flex flex-col gap-5">
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="file">Upload a CSV file</Label>
+            <input type="file" accept=".csv" name="file" id="file" required />
+          </div>
 
-          <input type="file" accept=".csv" name="file" />
-          <input type="hidden" name="labels" value={labels.join(";")} />
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="apiKey">OpenAI API Key</Label>
+            <Input
+              type="text"
+              name="apiKey"
+              id="apiKey"
+              // If we are in development mode, we don't require the API key, we take it from the environment
+              required={process.env.NODE_ENV !== "development"}
+            />
+          </div>
 
-          <p>The following labels will be used as possible values</p>
+          <div className="flex flex-col gap-3">
+            <Label>The following labels will be used as possible values:</Label>
+            <input type="hidden" name="labels" value={labels.join(";")} />
+            <Labels labels={labels} />
+            <p className="text-sm text-gray-300">
+              If you need changes in labels please close this dialog and edit
+              them
+            </p>
+          </div>
 
-          <Labels labels={labels} />
-
-          <p>
-            {milestone
-              ? 'The following milestone will be used: "' + milestone + '"'
-              : "No milestone will be used"}
-          </p>
-
-          <p>
-            If you need changes in labels or milestone, please close this dialog
-            and edit them
-          </p>
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="milestone">Milestone</Label>
+            <Input
+              type="text"
+              name="milestone"
+              id="milestone"
+              defaultValue={milestone}
+              required
+            />
+          </div>
 
           <SubmitButton />
         </form>

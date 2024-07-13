@@ -56,24 +56,24 @@ export default function ClientPage() {
               <Download className="mr-2 h-4 w-4" /> Export Issues
             </a>
           </Button>
+
           <Button variant="secondary" onClick={clearIssues}>
             <Trash2 className="mr-2 h-4 w-4" /> Clear Issues
           </Button>
-          {process.env.NODE_ENV === "development" && (
-            <InferDialog
-              trigger={
-                <Button variant="secondary" onClick={clearIssues}>
-                  <Bot className="mr-2 h-4 w-4" /> AI Infer
-                </Button>
-              }
-              labels={labels}
-              milestone={milestone ?? ""}
-              onSuccess={(newIssues) => {
-                clearIssues();
-                newIssues.forEach(addIssue);
-              }}
-            />
-          )}
+
+          <InferDialog
+            trigger={
+              <Button variant="secondary" onClick={clearIssues}>
+                <Bot className="mr-2 h-4 w-4" /> AI Infer
+              </Button>
+            }
+            labels={labels}
+            milestone={milestone ?? ""}
+            onSuccess={(newIssues) => {
+              clearIssues();
+              newIssues.forEach(addIssue);
+            }}
+          />
         </div>
       </div>
 

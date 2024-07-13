@@ -60,7 +60,7 @@ export function InputsRow({
       <TableCell className="w-28">
         <p className="text-zinc-300">{milestone}</p>
       </TableCell>
-      <TableCell>
+      <TableCell className="max-w-72 min-w-72">
         <Textarea
           form="issue-form"
           name="description"
