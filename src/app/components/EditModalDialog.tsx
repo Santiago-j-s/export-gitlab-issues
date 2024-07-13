@@ -8,10 +8,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Issue } from "./IssueItem";
-import { Labels } from "./Labels";
+import { SelectLabels } from "./SelectLabels";
 
 export const EditModalDialog = ({
   editing,
+  labelOptions,
   onClose,
   onUpdate,
   onAddLabel,
@@ -19,6 +20,7 @@ export const EditModalDialog = ({
 }: {
   onClose: () => void;
   editing: Omit<Issue, "onRemove" | "onEdit"> | null;
+  labelOptions: string[];
   onUpdate: (updatedIssue: Omit<Issue, "onRemove" | "onEdit">) => void;
   onAddLabel: (label: string) => void;
   onRemoveLabel: (label: string) => void;
@@ -87,10 +89,17 @@ export const EditModalDialog = ({
                 }
               }}
             />
-            <Labels
-              labels={editing?.labels ?? []}
-              onRemove={(label) => {
-                onRemoveLabel(label);
+            <SelectLabels
+              options={labelOptions.map((label) => ({
+                label,
+                isSelected: editing?.labels.includes(label) ?? false,
+              }))}
+              onClick={(label) => {
+                if (editing?.labels.includes(label)) {
+                  onRemoveLabel(label);
+                } else {
+                  onAddLabel(label);
+                }
               }}
             />
           </div>

@@ -46,7 +46,6 @@ export function useIssues() {
           const id = crypto.randomUUID();
 
           return [
-            ...state,
             {
               ...action.issue,
               id,
@@ -57,6 +56,7 @@ export function useIssues() {
                 setOpenEditModal({ ...action.issue, id });
               },
             },
+            ...state,
           ];
         }
         case "REMOVE_ISSUE":
