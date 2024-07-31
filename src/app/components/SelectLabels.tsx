@@ -18,6 +18,7 @@ export const SelectLabels = ({
           variant={isSelected ? "secondary" : "outline"}
           size="sm"
           onClick={() => onClick(label)}
+          type="button"
         >
           {label}
           {onRemove ? (
@@ -28,6 +29,7 @@ export const SelectLabels = ({
               }}
               className="w-fit h-fit ml-1 p-1"
               variant="ghost"
+              type="button"
             >
               <X className="size-3 pointer-events-none" />
             </Button>
