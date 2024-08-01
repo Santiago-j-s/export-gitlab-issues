@@ -1,8 +1,9 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { Bot, Download, Trash2 } from "lucide-react";
+import { Bot, Download, Tag, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { EditModalDialog } from "./components/EditModalDialog";
+import { ImportLabelsDialog } from "./components/ImportLabelsDialog";
 import { InferDialog } from "./components/InferDialog";
 import { Issue } from "./components/IssueItem";
 import { Issues } from "./components/Issues";
@@ -51,6 +52,18 @@ export default function ClientPage() {
         />
 
         <div className="flex gap-4">
+          <ImportLabelsDialog
+            trigger={
+              <Button>
+                <Tag className="mr-2 h-4 w-4" /> Import labels
+              </Button>
+            }
+            onSuccess={(payload) => {
+              resetLabels();
+              payload.forEach(({ name }) => addLabel(name));
+            }}
+          />
+
           <Button asChild>
             <a href={exportUrl ?? undefined} download="issues.csv">
               <Download className="mr-2 h-4 w-4" /> Export Issues
