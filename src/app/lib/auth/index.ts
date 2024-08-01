@@ -35,12 +35,12 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
     {
       id: 'gitlab',
       name: 'Gitlab',
-      type: 'oidc',
+      type: 'oauth',
       issuer,
       token: `${issuer}/oauth/token`,
       authorization: {
         url: `${issuer}/oauth/authorize`,
-        params: { scope: 'openid api' },
+        params: { scope: 'api' },
       },
       clientId: process.env.GITLAB_CLIENT_ID,
       clientSecret: process.env.GITLAB_CLIENT_SECRET,
