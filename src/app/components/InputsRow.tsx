@@ -1,16 +1,15 @@
 import { Input } from "@/components/ui/input";
 import { TableCell, TableRow } from "@/components/ui/table";
-import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 import { SelectLabels } from "./SelectLabels";
 
 export function InputsRow({
   labelOptions,
-  milestone,
+  milestoneForm,
   onRemoveLabel,
 }: {
   labelOptions: string[];
-  milestone: string | null;
+  milestoneForm: ReactNode;
   onRemoveLabel: (label: string) => void;
 }) {
   const [selectedLabels, setSelectedLabels] = useState<string[]>([]);
@@ -22,7 +21,6 @@ export function InputsRow({
           type="text"
           name="title"
           placeholder="Enter new title"
-          className="w-full min-w-64"
           form="issue-form"
           onKeyDown={(e) => {
             if (e.key === "Enter") {
@@ -57,22 +55,8 @@ export function InputsRow({
           onRemove={onRemoveLabel}
         />
       </TableCell>
-      <TableCell className="w-28">
-        <p className="text-zinc-300">{milestone}</p>
-      </TableCell>
-      <TableCell className="max-w-72 min-w-72">
-        <Textarea
-          form="issue-form"
-          name="description"
-          placeholder="Enter new description"
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              e.currentTarget.form?.requestSubmit();
-            }
-          }}
-        />
-      </TableCell>
+      <TableCell className="w-28">{milestoneForm}</TableCell>
+      <TableCell />
     </TableRow>
   );
 }

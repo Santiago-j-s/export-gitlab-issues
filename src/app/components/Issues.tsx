@@ -12,42 +12,38 @@ import { Issue, IssueItem } from "./IssueItem";
 export interface IssuesProps {
   labels: string[];
   issues: Issue[];
-  milestone: string | null;
   onRemoveLabel: (label: string) => void;
+  milestoneForm: React.ReactNode;
 }
 
 export function Issues({
   labels,
   issues,
-  milestone,
+  milestoneForm,
   onRemoveLabel,
 }: IssuesProps) {
   return (
-    <div>
-      <h2 className="text-2xl font-bold mb-4">Issues</h2>
-      <div className="border rounded-md overflow-hidden w-full">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Title</TableHead>
-              <TableHead>Labels</TableHead>
-              <TableHead>Milestone</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            <InputsRow
-              labelOptions={labels}
-              milestone={milestone}
-              onRemoveLabel={onRemoveLabel}
-            />
-            {issues.map((issue) => (
-              <IssueItem key={issue.id} {...issue} />
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+    <div className="border rounded-md overflow-hidden w-full">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-[250px]">Title</TableHead>
+            <TableHead>Labels</TableHead>
+            <TableHead>Milestone</TableHead>
+            <TableHead className="w-16">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <InputsRow
+            labelOptions={labels}
+            milestoneForm={milestoneForm}
+            onRemoveLabel={onRemoveLabel}
+          />
+          {issues.map((issue) => (
+            <IssueItem key={issue.id} {...issue} />
+          ))}
+        </TableBody>
+      </Table>
     </div>
   );
 }
