@@ -1,7 +1,7 @@
 'use server'
 
 import { auth } from "@/app/lib/auth";
-import { addIssues } from "@/app/services/gitlab/issues";
+import { addIssues, issuesToUploadSchema } from "@/app/services/gitlab/issues";
 import { getProjectByName, projectSchema } from "@/app/services/gitlab/projects";
 import { z } from "zod";
 
@@ -26,12 +26,7 @@ export type FormState = SuccessFormState | ErrorFormState | IdleFormState;
 
 export const saveIssues = async (formData: FormData): Promise<FormState> => {
   const session = await auth();
-  const issues = z.array(z.object({
-    title: z.string(),
-    description: z.string(),
-    labels: z.array(z.string()),
-    milestone: z.string(),
-  })).parse(JSON.parse(formData.get("issues") as string));
+  const issues = issuesToUploadSchema.parse(JSON.parse(formData.get("issues") as string));
 
   if (!session) {
     return {
