@@ -5,12 +5,10 @@ const OnlyClientPage = dynamic(() => import("./page.client"), { ssr: false });
 
 export default function Home() {
   return (
-    <div className="w-full justify-center flex py-10">
-      <main className="max-w-7xl flex flex-col gap-8">
-        <Suspense>
-          <OnlyClientPage />
-        </Suspense>
-      </main>
-    </div>
+    <main className="max-w-7xl mx-auto flex flex-col gap-8 py-10">
+      <Suspense>
+        <OnlyClientPage />
+      </Suspense>
+    </main>
   );
 }

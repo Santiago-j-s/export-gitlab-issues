@@ -63,6 +63,17 @@ export const EditModalDialog = ({
           </div>
 
           <div className="flex flex-col gap-2">
+            <Label htmlFor="description">Description</Label>
+            <Input
+              type="text"
+              name="description"
+              placeholder="Edit description"
+              className="w-full"
+              defaultValue={editing?.description}
+            />
+          </div>
+
+          <div className="flex flex-col gap-2">
             <Label htmlFor="description">Labels</Label>
             {editing?.labels && editing.labels.length > 0 && (
               <input
