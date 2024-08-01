@@ -11,7 +11,7 @@ import { ReactNode, useState } from "react";
 import { useFormState } from "react-dom";
 import { Issue } from "../IssueItem";
 import { Labels } from "../Labels";
-import { SubmitButton } from "./SubmitButton";
+import { SubmitButton } from "../SubmitButton";
 import { FormState, inferFromCsv } from "./actions";
 
 export const InferDialog = ({
@@ -119,7 +119,7 @@ export const InferDialog = ({
             />
           </div>
 
-          <SubmitButton />
+          <SubmitButton pendingLabel="Infering..." submitLabel="Infer" />
         </form>
       </DialogContent>
     </Dialog>
