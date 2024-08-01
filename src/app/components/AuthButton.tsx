@@ -1,5 +1,21 @@
+import { Button } from "@/components/ui/button";
+import { LogOut } from "lucide-react";
 import { revalidatePath } from "next/cache";
 import { auth, signIn, signOut } from "../lib/auth";
+
+const GitlabIcon = () => {
+  return (
+    <svg
+      role="img"
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+      className="size-4 mr-1"
+    >
+      <title>GitLab</title>
+      <path d="m23.6004 9.5927-.0337-.0862L20.3.9814a.851.851 0 0 0-.3362-.405.8748.8748 0 0 0-.9997.0539.8748.8748 0 0 0-.29.4399l-2.2055 6.748H7.5375l-2.2057-6.748a.8573.8573 0 0 0-.29-.4412.8748.8748 0 0 0-.9997-.0537.8585.8585 0 0 0-.3362.4049L.4332 9.5015l-.0325.0862a6.0657 6.0657 0 0 0 2.0119 7.0105l.0113.0087.03.0213 4.976 3.7264 2.462 1.8633 1.4995 1.1321a1.0085 1.0085 0 0 0 1.2197 0l1.4995-1.1321 2.4619-1.8633 5.006-3.7489.0125-.01a6.0682 6.0682 0 0 0 2.0094-7.003z" />
+    </svg>
+  );
+};
 
 export const AuthButton = async () => {
   const session = await auth();
@@ -20,9 +36,10 @@ export const AuthButton = async () => {
         });
       }}
     >
-      <button type="submit">
+      <Button type="submit">
+        {session ? <LogOut className="size-4 mr-2" /> : <GitlabIcon />}
         {session ? "Sign out" : "Sign in with Gitlab"}
-      </button>
+      </Button>
     </form>
   );
 };
