@@ -1,7 +1,8 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { Bot, Download, Tag, Trash2 } from "lucide-react";
+import { Bot, Download, Tag, Trash2, Upload } from "lucide-react";
 import { useEffect, useState } from "react";
+import { AddIssuesDialog } from "./components/AddIssuesDialog";
 import { EditModalDialog } from "./components/EditModalDialog";
 import { ImportLabelsDialog } from "./components/ImportLabelsDialog";
 import { InferDialog } from "./components/InferDialog";
@@ -51,7 +52,16 @@ export default function ClientPage() {
           setMilestone={setMilestone}
         />
 
-        <div className="flex gap-4">
+        <div className="grid grid-cols-3 gap-4">
+          <AddIssuesDialog
+            trigger={
+              <Button>
+                <Upload className="mr-2 h-4 w-4" /> Add Issues
+              </Button>
+            }
+            issuesToAdd={issues}
+          />
+
           <ImportLabelsDialog
             trigger={
               <Button>

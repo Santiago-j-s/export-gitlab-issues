@@ -12,3 +12,12 @@ export const fetchGitlabAPI = (endpoint: string, token: string) => {
     },
   });
 }
+
+export const postGitlabAPI = (endpoint: string, token: string) => {
+  return fetch(`${BASE_GITLAB_API}${endpoint}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    method: 'POST',
+  });
+}
