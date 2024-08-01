@@ -18,7 +18,6 @@ export function IssueItem({
   id,
   title,
   labels,
-  description,
   milestone,
   onRemove,
   onEdit,
@@ -33,9 +32,6 @@ export function IssueItem({
       </TableCell>
       <TableCell>
         <p className="text-zinc-300">{milestone}</p>
-      </TableCell>
-      <TableCell>
-        <p className="text-zinc-300">{description}</p>
       </TableCell>
       <TableCell className="flex gap-4">
         <Button
