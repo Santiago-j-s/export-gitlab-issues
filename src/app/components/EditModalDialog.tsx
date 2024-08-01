@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Issue } from "./IssueItem";
 import { SelectLabels } from "./SelectLabels";
 
@@ -64,8 +65,7 @@ export const EditModalDialog = ({
 
           <div className="flex flex-col gap-2">
             <Label htmlFor="description">Description</Label>
-            <Input
-              type="text"
+            <Textarea
               name="description"
               placeholder="Edit description"
               className="w-full"
