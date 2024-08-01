@@ -11,7 +11,7 @@ export const SelectLabels = ({
   options: { label: string; isSelected: boolean }[];
 }) => {
   return (
-    <div className="flex gap-2 w-96 max-w-96 flex-wrap">
+    <div className="flex gap-2 flex-wrap">
       {options.map(({ label, isSelected }, i) => (
         <Button
           key={`${label}-${i}`}
