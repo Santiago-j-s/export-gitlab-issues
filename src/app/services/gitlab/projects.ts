@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { BASE_GITLAB_API } from ".";
+import { fetchGitlabAPI } from ".";
 
 export const projectSchema = z.object({
   id: z.number(),
@@ -8,11 +8,7 @@ export const projectSchema = z.object({
 })
 
 export const getProjectByName = async (term: string, token: string) => {
-  const response = await fetch(`${BASE_GITLAB_API}/projects?search=${term}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  const response = await fetchGitlabAPI(`/projects?search=${term}`, token);
 
   if (!response.ok) {
     throw new Error("Failed to fetch projects");

@@ -4,3 +4,11 @@ if (!process.env.GITLAB_AUTH_URL) {
 
 
 export const BASE_GITLAB_API = `${process.env.GITLAB_AUTH_URL}/api/v4`;
+
+export const fetchGitlabAPI = (endpoint: string, token: string) => {
+  return fetch(`${BASE_GITLAB_API}${endpoint}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
