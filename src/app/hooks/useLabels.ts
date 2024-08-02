@@ -1,20 +1,20 @@
 import { getRandomHex, getTextColor } from "@/lib/colors";
 import { useEffect, useReducer, useSyncExternalStore } from "react";
 import { z } from "zod";
-import { LabelOption } from "../components/SelectLabels";
 
 function emptySubscribe() {
   return () => {};
 }
 
-const selectableLabelSchema = z.object({
+const optionLabelSchema = z.object({
   label: z.string(),
   backgroundColor: z.string(),
   color: z.string(),
 });
+export type LabelOption = z.infer<typeof optionLabelSchema>;
 
 function getLabelsFromStorage() {
-  const labels = selectableLabelSchema
+  const labels = optionLabelSchema
     .array()
     .transform((data) => {
       return data.sort((a, b) => a.label.localeCompare(b.label));
@@ -29,6 +29,20 @@ function getLabelsFromStorage() {
 }
 
 const storageLabels = getLabelsFromStorage();
+
+export const generateLabelOption = ({
+  label,
+  backgroundColor = getRandomHex(),
+}: {
+  label: string;
+  backgroundColor?: string;
+}) => {
+  return {
+    label: label,
+    backgroundColor,
+    color: getTextColor(backgroundColor),
+  };
+};
 
 export function useLabels() {
   const initialLabels = useSyncExternalStore(
@@ -50,14 +64,12 @@ export function useLabels() {
     ) => {
       switch (action.type) {
         case "ADD_LABEL": {
-          const backgroundColor = action.backgroundColor || getRandomHex();
           return [
             ...state,
-            {
+            generateLabelOption({
               label: action.label,
-              backgroundColor,
-              color: getTextColor(backgroundColor),
-            },
+              backgroundColor: action.backgroundColor,
+            }),
           ].sort((a, b) => a.label.localeCompare(b.label));
         }
         case "REMOVE_LABEL":
