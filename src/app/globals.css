@@ -60,9 +60,46 @@
     --destructive: hsl(0 62.8% 30.6%);
     --destructive-foreground: hsl(0 0% 98%);
 
-    --border: hsl(240 3.7% 15.9%);
     --input: hsl(240 3.7% 15.9%);
     --ring: hsl(240 4.9% 83.9%);
+
+    /* End of default theme */
+
+    /* Colors */
+    --background-primary: #0f1117;
+    --background-secondary: #1b1b21;
+    --background-tertiary: #212128;
+
+    --border: #3e3e3e;
+    --border-primary: #3e3e3e;
+
+    --text-default: #ffffff;
+    --text-lighter: #adadad;
+
+    /* Spacings */
+    --spacing-sm1: 4px;
+    --spacing-sm2: 8px;
+    --spacing-sm3: 12px;
+    --spacing-md1: 16px;
+    --spacing-md2: 24px;
+    --spacing-md3: 32px;
+    --spacing-lg1: 40px;
+    --spacing-lg2: 48px;
+    --spacing-lg3: 80px;
+
+    /* Radius */
+    --radius-xs: 4px;
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 16px;
+
+    --font-size-h1: 48px;
+    --font-size-h2: 36px;
+    --font-size-h3: 30px;
+    --font-size-h4: 24px;
+    --font-size-base: 16px;
+    --font-size-sm: 14px;
+    --font-size-xs: 12px;
   }
 }
 
@@ -71,6 +108,6 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background-primary text-text;
   }
 }

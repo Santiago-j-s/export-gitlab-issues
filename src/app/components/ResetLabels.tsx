@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { RefreshCcw } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Alert } from "./Alert";
 
@@ -15,7 +15,7 @@ export const ResetLabels = ({ resetLabels }: { resetLabels: () => void }) => {
           setIsAlertOpen(true);
         }}
       >
-        <RefreshCcw className="size-4" />
+        <Trash2 className="size-4" />
       </Button>
       <Alert
         onOpenChange={setIsAlertOpen}
@@ -28,7 +28,10 @@ export const ResetLabels = ({ resetLabels }: { resetLabels: () => void }) => {
         }}
         rightButton={{
           label: "Remove",
-          onClick: resetLabels,
+          onClick: () => {
+            resetLabels();
+            setIsAlertOpen(false);
+          },
         }}
       />
     </>
