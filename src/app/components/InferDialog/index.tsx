@@ -1,3 +1,4 @@
+import { LabelOption, generateLabelOption } from "@/app/hooks/useLabels";
 import {
   Dialog,
   DialogContent,
@@ -6,6 +7,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { DialogDescription } from "@radix-ui/react-dialog";
 import { ReactNode, useState } from "react";
 import { useFormState } from "react-dom";
@@ -17,12 +19,10 @@ import { FormState, inferFromCsv } from "./actions";
 export const InferDialog = ({
   trigger,
   labels,
-  milestone,
   onSuccess,
 }: {
   trigger: ReactNode;
-  labels: string[];
-  milestone: string;
+  labels: LabelOption[];
   onSuccess: (newIssues: Omit<Issue, "onRemove" | "onEdit">[]) => void;
 }) => {
   const [isOpen, setOpen] = useState(false);
@@ -44,11 +44,11 @@ export const InferDialog = ({
 
             resultLabels.forEach((label) => {
               const originalLabel = originalLabels.find(
-                (_label) => _label.toLowerCase() === label.toLowerCase()
+                (_label) => _label.label.toLowerCase() === label.toLowerCase()
               );
 
               if (originalLabel) {
-                labelsToUse.push(originalLabel);
+                labelsToUse.push(originalLabel.label);
               }
             });
 
@@ -57,7 +57,17 @@ export const InferDialog = ({
               title: result.title,
               description: result.description ?? "",
               labels:
-                result.labels?.filter((label) => labels.includes(label)) ?? [],
+                result.labels
+                  ?.filter((label) => labels.some((l) => l.label === label))
+                  .map((label) => {
+                    const backgroundColor = originalLabels.find(
+                      (l) => l.label === label
+                    )?.backgroundColor;
+                    return generateLabelOption({
+                      label,
+                      backgroundColor,
+                    });
+                  }) ?? [],
               milestone: result.milestone,
             };
           }
@@ -100,8 +110,14 @@ export const InferDialog = ({
 
           <div className="flex flex-col gap-3">
             <Label>The following labels will be used as possible values:</Label>
-            <input type="hidden" name="labels" value={labels.join(";")} />
-            <Labels labels={labels} />
+            <input
+              type="hidden"
+              name="labels"
+              value={labels.map((l) => l.label).join(";")}
+            />
+            <ScrollArea className="max-h-32">
+              <Labels labels={labels} />
+            </ScrollArea>
             <p className="text-sm text-gray-300">
               If you need changes in labels please close this dialog and edit
               them
@@ -110,13 +126,7 @@ export const InferDialog = ({
 
           <div className="flex flex-col gap-2">
             <Label htmlFor="milestone">Milestone</Label>
-            <Input
-              type="text"
-              name="milestone"
-              id="milestone"
-              defaultValue={milestone}
-              required
-            />
+            <Input type="text" name="milestone" id="milestone" required />
           </div>
 
           <SubmitButton pendingLabel="Infering..." submitLabel="Infer" />
