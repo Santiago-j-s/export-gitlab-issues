@@ -1,12 +1,21 @@
-import { Issue } from "@/app/components/IssueItem";
+import { z } from "zod";
 import { postGitlabAPI } from ".";
 import { getProjectMilestoneByName } from "./milestones";
 
+export const issuesToUploadSchema = z.array(
+  z.object({
+    title: z.string(),
+    description: z.string().nullable(),
+    labels: z.array(z.string()),
+    milestone: z.string(),
+  })
+);
+
+type IssuesToUpload = z.infer<typeof issuesToUploadSchema>;
+
 export const addIssues = async (
   projectId: number,
-  issues: (Omit<Issue, "onEdit" | "onRemove" | "id" | "labels"> & {
-    labels: string[];
-  })[],
+  issues: IssuesToUpload,
   accessToken: string
 ) => {
   const milestonesToSearch = issues
