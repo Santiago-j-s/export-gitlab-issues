@@ -54,6 +54,7 @@ export const EditModalDialog = ({
             }}
             defaultValues={{
               title: editing?.title ?? "",
+              description: editing?.description ?? "",
               labels: editing?.labels.map((label) => label.label) ?? [],
               milestone: editing?.milestone ?? "",
             }}

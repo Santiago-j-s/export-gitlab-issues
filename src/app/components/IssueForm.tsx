@@ -1,6 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Textarea } from "@/components/ui/textarea";
 import { useRef, useState } from "react";
 import { LabelOption, generateLabelOption } from "../hooks/useLabels";
 import { SelectLabels } from "./SelectLabels";
@@ -19,6 +20,7 @@ export function IssueForm({
   defaultValues?: {
     title: string;
     labels: string[];
+    description: string;
     milestone: string;
   };
 }) {
@@ -58,6 +60,22 @@ export function IssueForm({
           className="w-full"
           onChange={(e) => setMilestone(e.target.value)}
           defaultValue={milestone}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              e.currentTarget.form?.requestSubmit();
+            }
+          }}
+        />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="description">Description</Label>
+        <Textarea
+          id="description"
+          name="description"
+          className="w-full"
+          defaultValue={defaultValues?.description}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
