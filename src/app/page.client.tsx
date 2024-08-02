@@ -1,88 +1,56 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { Bot, Download, Tag, Trash2, Upload } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Bot, CloudDownload, Trash2, Upload } from "lucide-react";
 import { AddIssuesDialog } from "./components/AddIssuesDialog";
 import { EditModalDialog } from "./components/EditModalDialog";
 import { ImportLabelsDialog } from "./components/ImportLabelsDialog";
 import { InferDialog } from "./components/InferDialog";
-import { Issue } from "./components/IssueItem";
+import { IssueForm, parseIssueFormResult } from "./components/IssueForm";
 import { Issues } from "./components/Issues";
-import { LabelsAndMilestoneForm } from "./components/LabelsAndMilestoneForm";
+import { ResetLabels } from "./components/ResetLabels";
+import { TwoResizableColumns } from "./components/TwoResizableColumns";
 import { useIssues } from "./hooks/useIssues";
-import { useLabels } from "./hooks/useLabels";
+import { LabelOption, generateLabelOption, useLabels } from "./hooks/useLabels";
 
-function createCsv(issues: Issue[]) {
-  const headers = ["title", "due_date", "milestone", "description"].join(",");
+const combineEditingLabelsWithLabels = (
+  editingLabels: LabelOption[],
+  labels: LabelOption[]
+) => {
+  const labelsNotRepeated = [
+    ...labels.map((label) => label.label),
+    ...editingLabels.map((l) => l.label),
+  ].filter(Boolean);
 
-  const rows = issues.map((issue) => {
-    const labels = issue.labels.map((label) => `~""${label}""`).join(" ");
+  const uniqueLabels = Array.from(new Set(labelsNotRepeated));
 
-    return `"${issue.title}",,"${issue.milestone}","${issue.description}\n/label ${labels}",`;
+  return uniqueLabels.map((label) => {
+    const existingLabel = labels.find((l) => l.label === label);
+
+    if (!existingLabel) {
+      return generateLabelOption({ label });
+    }
+
+    return existingLabel;
   });
-
-  return [headers, ...rows].join("\n");
-}
+};
 
 export default function ClientPage() {
   const [labels, addLabel, removeLabel, resetLabels] = useLabels();
   const [issues, addIssue, clearIssues, { editing, setEditing }, removeIssue] =
     useIssues();
-  const [milestone, setMilestone] = useState<string | null>(null);
-  const [exportUrl, setExportUrl] = useState<string | null>(null);
-
-  useEffect(() => {
-    const blob = new Blob([createCsv(issues)], { type: "text/csv" });
-
-    const url = URL.createObjectURL(blob);
-    setExportUrl(url);
-
-    return () => {
-      URL.revokeObjectURL(url);
-    };
-  }, [issues, setExportUrl]);
 
   return (
     <>
-      <div className="flex justify-between w-full items-center">
-        <LabelsAndMilestoneForm
-          addLabel={addLabel}
-          resetLabels={resetLabels}
-          milestone={milestone ?? ""}
-          setMilestone={setMilestone}
-        />
-
-        <div className="grid grid-cols-3 gap-4">
+      <div className="flex justify-end w-full">
+        <div className="flex gap-4">
           <AddIssuesDialog
             trigger={
               <Button>
-                <Upload className="mr-2 h-4 w-4" /> Add Issues
+                <Upload className="mr-2 h-4 w-4" /> Upload Issues
               </Button>
             }
             issuesToAdd={issues}
           />
-
-          <ImportLabelsDialog
-            trigger={
-              <Button>
-                <Tag className="mr-2 h-4 w-4" /> Import labels
-              </Button>
-            }
-            onSuccess={(payload) => {
-              resetLabels();
-              payload.forEach(({ name }) => addLabel(name));
-            }}
-          />
-
-          <Button asChild>
-            <a href={exportUrl ?? undefined} download="issues.csv">
-              <Download className="mr-2 h-4 w-4" /> Export Issues
-            </a>
-          </Button>
-
-          <Button variant="secondary" onClick={clearIssues}>
-            <Trash2 className="mr-2 h-4 w-4" /> Clear Issues
-          </Button>
 
           <InferDialog
             trigger={
@@ -91,7 +59,6 @@ export default function ClientPage() {
               </Button>
             }
             labels={labels}
-            milestone={milestone ?? ""}
             onSuccess={(newIssues) => {
               clearIssues();
               newIssues.forEach(addIssue);
@@ -100,53 +67,74 @@ export default function ClientPage() {
         </div>
       </div>
 
-      <div className="col-span-8">
-        <Issues
-          labels={labels}
-          issues={issues}
-          milestone={milestone}
-          onRemoveLabel={removeLabel}
-        />
-        <form
-          id="issue-form"
-          action={(data: FormData) => {
-            const labels = data.get("label");
+      <TwoResizableColumns
+        columnA={
+          <form
+            action={(data: FormData) => {
+              addIssue(parseIssueFormResult(data, labels));
+            }}
+            className="h-full flex flex-col gap-md1 px-md2 py-md3 rounded-lg bg-background-secondary border"
+          >
+            <p className="text-h4 font-semibold">Add issue</p>
+            <IssueForm
+              labelOptions={labels}
+              labelsActions={
+                <div className="flex gap-2">
+                  <ResetLabels resetLabels={resetLabels} />
+                  <ImportLabelsDialog
+                    trigger={
+                      <Button size="icon" className="size-6">
+                        <CloudDownload className="size-4" />
+                      </Button>
+                    }
+                    onSuccess={(payload) => {
+                      resetLabels();
+                      payload.forEach(({ name, color }) =>
+                        addLabel(name, color)
+                      );
+                    }}
+                  />
+                </div>
+              }
+              onRemoveLabel={removeLabel}
+            />
+          </form>
+        }
+        columnB={
+          <Issues
+            header={
+              <div className="flex justify-between w-full">
+                <p className="text-h4 font-semibold mb-4">Issues</p>
 
-            addIssue({
-              title: data.get("title") as string,
-              labels:
-                labels && typeof labels === "string" ? labels.split(",") : [],
-              description: data.get("description") as string,
-              milestone: data.get("milestone") as string,
-            });
-          }}
-        >
-          <input hidden readOnly name="milestone" value={milestone ?? ""} />
-        </form>
-      </div>
+                <Button variant="secondary" onClick={clearIssues}>
+                  <Trash2 className="mr-2 h-4 w-4" /> Clear Issues
+                </Button>
+              </div>
+            }
+            issues={issues}
+          />
+        }
+      />
+
+      <form
+        action={(data: FormData) => {
+          addLabel(data.get("label") as string);
+        }}
+        className="flex flex-col gap-2"
+        id="add-label"
+      />
 
       <EditModalDialog
         editing={editing}
-        onAddLabel={(label) => {
-          setEditing({
-            ...editing,
-            labels: [...(editing?.labels ?? []), label],
-          } as Issue);
-        }}
         onClose={() => setEditing(null)}
-        onRemoveLabel={(label) => {
-          setEditing({
-            ...editing,
-            labels: editing?.labels.filter((l) => l !== label) ?? [],
-          } as Issue);
-        }}
         onUpdate={(issue) => {
           removeIssue(issue.id);
           addIssue(issue);
           setEditing(null);
         }}
-        labelOptions={Array.from(
-          new Set([...labels, ...(editing?.labels ?? [])].filter(Boolean))
+        labelOptions={combineEditingLabelsWithLabels(
+          editing?.labels ?? [],
+          labels
         )}
       />
     </>
