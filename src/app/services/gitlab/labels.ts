@@ -14,7 +14,10 @@ export const labelsSchema = z
   });
 
 export const getProjectLabels = async (projectId: number, token: string) => {
-  const response = await fetchGitlabAPI(`/projects/${projectId}/labels`, token);
+  const response = await fetchGitlabAPI(
+    `/projects/${projectId}/labels?per_page=250`,
+    token
+  );
 
   if (!response.ok) {
     throw new Error("Failed to fetch labels");
