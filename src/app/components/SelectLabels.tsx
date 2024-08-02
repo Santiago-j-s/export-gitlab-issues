@@ -1,11 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
-
-export interface LabelOption {
-  label: string;
-  backgroundColor: string;
-  color: string;
-}
+import { LabelOption } from "../hooks/useLabels";
 
 interface SelectableLabelOption extends LabelOption {
   isSelected: boolean;
