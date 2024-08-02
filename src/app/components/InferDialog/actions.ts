@@ -2,6 +2,10 @@
 import OpenAI from "openai";
 import { z } from "zod";
 
+export const config = {
+  maxDuration: 60,
+};
+
 interface ErrorFormState {
   status: "error";
   message: string;
