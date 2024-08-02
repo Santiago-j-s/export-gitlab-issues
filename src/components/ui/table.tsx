@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 type TableProps = React.ComponentProps<"table">;
 
 const Table = ({ className, ref, ...props }: TableProps) => (
-  <div className="relative w-full overflow-auto">
+  <div className="relative w-full flex-grow">
     <table
       ref={ref}
       className={cn("w-full caption-bottom text-sm", className)}

@@ -53,6 +53,7 @@ const Button = ({
     <Comp
       className={cn(buttonVariants({ variant, size, className }))}
       ref={ref}
+      type="button"
       {...props}
     />
   );
