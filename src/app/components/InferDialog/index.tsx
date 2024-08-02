@@ -105,6 +105,7 @@ export const InferDialog = ({
               id="apiKey"
               // If we are in development mode, we don't require the API key, we take it from the environment
               required={process.env.NODE_ENV !== "development"}
+              placeholder="sk-..."
             />
           </div>
 
@@ -126,7 +127,13 @@ export const InferDialog = ({
 
           <div className="flex flex-col gap-2">
             <Label htmlFor="milestone">Milestone</Label>
-            <Input type="text" name="milestone" id="milestone" required />
+            <Input
+              type="text"
+              name="milestone"
+              id="milestone"
+              required
+              placeholder="Add milestone"
+            />
           </div>
 
           <SubmitButton pendingLabel="Infering..." submitLabel="Infer" />

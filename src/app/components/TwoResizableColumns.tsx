@@ -60,7 +60,6 @@ export const TwoResizableColumns = ({
 }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const onMouseMove = (event: MouseEvent) => {
@@ -107,7 +106,6 @@ export const TwoResizableColumns = ({
       </div>
       <button
         className="w-sm1 h-full bg-border rounded-md cursor-col-resize absolute"
-        ref={buttonRef}
         style={{
           left: state.positionX - 2,
         }}
