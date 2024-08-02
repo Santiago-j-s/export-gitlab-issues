@@ -82,6 +82,15 @@ const config = {
         md: "var(--radius-md)",
         lg: "var(--radius-lg)",
       },
+      fontSize: {
+        h1: "var(--font-size-h1)",
+        h2: "var(--font-size-h2)",
+        h3: "var(--font-size-h3)",
+        h4: "var(--font-size-h4)",
+        base: "var(--font-size-base)",
+        sm: "var(--font-size-sm)",
+        xs: "var(--font-size-xs)",
+      },
       keyframes: {
         "accordion-down": {
           from: { height: "0" },
