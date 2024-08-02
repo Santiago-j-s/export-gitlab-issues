@@ -19,11 +19,23 @@ const config = {
     },
     extend: {
       colors: {
-        border: "var(--border)",
+        border: {
+          DEFAULT: "var(--border)",
+          primary: "var(--border-primary)",
+        },
         input: "var(--input)",
         ring: "var(--ring)",
-        background: "var(--background)",
+        background: {
+          DEFAULT: "var(--background)",
+          primary: "var(--background-primary)",
+          secondary: "var(--background-secondary)",
+          tertiary: "var(--background-tertiary)",
+        },
         foreground: "var(--foreground)",
+        text: {
+          DEFAULT: "var(--text-default)",
+          lighter: "var(--text-lighter)",
+        },
         primary: {
           DEFAULT: "var(--primary)",
           foreground: "var(--primary-foreground)",
@@ -53,10 +65,22 @@ const config = {
           foreground: "var(--card-foreground)",
         },
       },
+      spacing: {
+        sm1: "var(--spacing-sm1)",
+        sm2: "var(--spacing-sm2)",
+        sm3: "var(--spacing-sm3)",
+        md1: "var(--spacing-md1)",
+        md2: "var(--spacing-md2)",
+        md3: "var(--spacing-md3)",
+        lg1: "var(--spacing-lg1)",
+        lg2: "var(--spacing-lg2)",
+        lg3: "var(--spacing-lg3)",
+      },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        xs: "var(--radius-xs)",
+        sm: "var(--radius-sm)",
+        md: "var(--radius-md)",
+        lg: "var(--radius-lg)",
       },
       keyframes: {
         "accordion-down": {

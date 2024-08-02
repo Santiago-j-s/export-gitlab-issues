@@ -24,7 +24,7 @@ export default async function RootLayout({
       <body
         className={cn(
           inter.className,
-          "min-h-screen bg-background font-sans antialiased dark"
+          "min-h-screen bg-background-primary text-default font-sans antialiased dark"
         )}
       >
         <Navbar />

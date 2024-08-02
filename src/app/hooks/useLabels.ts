@@ -1,11 +1,31 @@
+import { getRandomHex, getTextColor } from "@/lib/colors";
 import { useEffect, useReducer, useSyncExternalStore } from "react";
+import { z } from "zod";
+import { LabelOption } from "../components/SelectLabels";
 
 function emptySubscribe() {
   return () => {};
 }
 
+const selectableLabelSchema = z.object({
+  label: z.string(),
+  backgroundColor: z.string(),
+  color: z.string(),
+});
+
 function getLabelsFromStorage() {
-  return JSON.parse(localStorage.getItem("labels") ?? "[]") as string[];
+  const labels = selectableLabelSchema
+    .array()
+    .transform((data) => {
+      return data.sort((a, b) => a.label.localeCompare(b.label));
+    })
+    .safeParse(JSON.parse(localStorage.getItem("labels") ?? "[]"));
+
+  if (!labels.success) {
+    return [];
+  }
+
+  return labels.data;
 }
 
 const storageLabels = getLabelsFromStorage();
@@ -18,20 +38,30 @@ export function useLabels() {
 
   const [labels, dispatchLabels] = useReducer(
     (
-      state: string[],
+      state: LabelOption[],
       action:
         | {
             type: "ADD_LABEL";
             label: string;
+            backgroundColor?: string;
           }
         | { type: "REMOVE_LABEL"; label: string }
         | { type: "RESET_LABELS" }
     ) => {
       switch (action.type) {
-        case "ADD_LABEL":
-          return [...state, action.label];
+        case "ADD_LABEL": {
+          const backgroundColor = action.backgroundColor || getRandomHex();
+          return [
+            ...state,
+            {
+              label: action.label,
+              backgroundColor,
+              color: getTextColor(backgroundColor),
+            },
+          ].sort((a, b) => a.label.localeCompare(b.label));
+        }
         case "REMOVE_LABEL":
-          return state.filter((label) => label !== action.label);
+          return state.filter((label) => label.label !== action.label);
         case "RESET_LABELS":
           return [];
         default:
@@ -48,8 +78,8 @@ export function useLabels() {
     localStorage.setItem("labels", JSON.stringify(labels));
   }, [labels]);
 
-  const addLabel = (label: string) => {
-    dispatchLabels({ type: "ADD_LABEL", label });
+  const addLabel = (label: string, backgroundColor?: string) => {
+    dispatchLabels({ type: "ADD_LABEL", label, backgroundColor });
   };
 
   const removeLabel = (label: string) => {

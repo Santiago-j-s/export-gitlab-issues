@@ -1,14 +1,14 @@
 import { Input } from "@/components/ui/input";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { ReactNode, useState } from "react";
-import { SelectLabels } from "./SelectLabels";
+import { LabelOption, SelectLabels } from "./SelectLabels";
 
 export function InputsRow({
   labelOptions,
   milestoneForm,
   onRemoveLabel,
 }: {
-  labelOptions: string[];
+  labelOptions: LabelOption[];
   milestoneForm: ReactNode;
   onRemoveLabel: (label: string) => void;
 }) {
@@ -41,9 +41,11 @@ export function InputsRow({
           />
         )}
         <SelectLabels
-          options={labelOptions.map((label) => ({
+          options={labelOptions.map(({ label, backgroundColor, color }) => ({
             isSelected: selectedLabels.includes(label),
             label,
+            backgroundColor,
+            color,
           }))}
           onClick={(label) => {
             setSelectedLabels((prev) =>

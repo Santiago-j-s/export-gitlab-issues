@@ -19,7 +19,11 @@ Table.displayName = "Table";
 type TableHeaderProps = React.ComponentProps<"thead">;
 
 const TableHeader = ({ className, ref, ...props }: TableHeaderProps) => (
-  <thead ref={ref} className={cn("[&_tr]:border-b", className)} {...props} />
+  <thead
+    ref={ref}
+    className={cn("[&_tr]:border-b font-semibold text-text-lighter", className)}
+    {...props}
+  />
 );
 
 TableHeader.displayName = "TableHeader";

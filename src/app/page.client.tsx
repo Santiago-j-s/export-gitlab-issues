@@ -1,5 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
+import { getRandomHex, getTextColor } from "@/lib/colors";
 import { Bot, Tag, Trash2, Upload } from "lucide-react";
 import { useState } from "react";
 import { AddIssuesDialog } from "./components/AddIssuesDialog";
@@ -23,7 +24,7 @@ export default function ClientPage() {
   return (
     <>
       <div className="flex justify-between w-full">
-        <div className="flex flex-col gap-4 gap-sm1 rounded-lg min-w-80 p-4 border border-muted">
+        <div className="flex flex-col gap-sm1 rounded-lg min-w-80 p-4 border border-muted">
           <div className="flex w-full justify-between gap-4">
             <p className="font-semibold">Labels</p>
 
@@ -37,7 +38,7 @@ export default function ClientPage() {
                 }
                 onSuccess={(payload) => {
                   resetLabels();
-                  payload.forEach(({ name }) => addLabel(name));
+                  payload.forEach(({ name, color }) => addLabel(name, color));
                 }}
               />
             </div>
@@ -62,7 +63,7 @@ export default function ClientPage() {
                 <Bot className="mr-2 h-4 w-4" /> AI Infer
               </Button>
             }
-            labels={labels}
+            labels={labels.map((label) => label.label)}
             milestone={milestone ?? ""}
             onSuccess={(newIssues) => {
               clearIssues();
@@ -132,7 +133,24 @@ export default function ClientPage() {
           setEditing(null);
         }}
         labelOptions={Array.from(
-          new Set([...labels, ...(editing?.labels ?? [])].filter(Boolean))
+          new Set(
+            [...labels.map((label) => label.label), ...(editing?.labels ?? [])]
+              .filter(Boolean)
+              .map((label) => {
+                const existingLabel = labels.find((l) => l.label === label);
+
+                if (!existingLabel) {
+                  const backgroundColor = getRandomHex();
+                  return {
+                    label,
+                    backgroundColor,
+                    color: getTextColor(backgroundColor),
+                  };
+                }
+
+                return existingLabel;
+              })
+          )
         )}
       />
     </>

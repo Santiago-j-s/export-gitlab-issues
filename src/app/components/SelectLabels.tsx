@@ -1,6 +1,16 @@
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 
+export interface LabelOption {
+  label: string;
+  backgroundColor: string;
+  color: string;
+}
+
+interface SelectableLabelOption extends LabelOption {
+  isSelected: boolean;
+}
+
 export const SelectLabels = ({
   onClick,
   onRemove,
@@ -8,34 +18,41 @@ export const SelectLabels = ({
 }: {
   onClick: (label: string) => void;
   onRemove?: (label: string) => void;
-  options: { label: string; isSelected: boolean }[];
+  options: SelectableLabelOption[];
 }) => {
   return (
     <div className="flex gap-2 flex-wrap">
-      {options.map(({ label, isSelected }, i) => (
-        <Button
-          key={`${label}-${i}`}
-          variant={isSelected ? "secondary" : "outline"}
-          size="sm"
-          onClick={() => onClick(label)}
-          type="button"
-        >
-          {label}
-          {onRemove ? (
-            <Button
-              onClick={(e) => {
-                e.stopPropagation();
-                onRemove(label);
-              }}
-              className="w-fit h-fit ml-1 p-1"
-              variant="ghost"
-              type="button"
-            >
-              <X className="size-3 pointer-events-none" />
-            </Button>
-          ) : null}
-        </Button>
-      ))}
+      {options.map(({ label, isSelected, backgroundColor, color }, i) => {
+        return (
+          <Button
+            key={`${label}-${i}`}
+            size="sm"
+            onClick={() => onClick(label)}
+            type="button"
+            className="rounded-xs py-0 px-sm3 leading-5 text-sm font-semibold"
+            style={{
+              border: `1px solid ${backgroundColor}`,
+              color: isSelected ? color : "var(--text-lighter)",
+              backgroundColor: isSelected ? backgroundColor : "transparent",
+            }}
+          >
+            {label}
+            {onRemove ? (
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onRemove(label);
+                }}
+                className="w-fit h-fit ml-1 p-1"
+                variant="ghost"
+                type="button"
+              >
+                <X className="size-3 pointer-events-none" />
+              </Button>
+            ) : null}
+          </Button>
+        );
+      })}
     </div>
   );
 };

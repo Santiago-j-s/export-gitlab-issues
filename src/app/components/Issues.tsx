@@ -8,9 +8,10 @@ import {
 
 import { InputsRow } from "./InputsRow";
 import { Issue, IssueItem } from "./IssueItem";
+import { LabelOption } from "./SelectLabels";
 
 export interface IssuesProps {
-  labels: string[];
+  labels: LabelOption[];
   issues: Issue[];
   onRemoveLabel: (label: string) => void;
   milestoneForm: React.ReactNode;
@@ -23,7 +24,7 @@ export function Issues({
   onRemoveLabel,
 }: IssuesProps) {
   return (
-    <div className="border rounded-md overflow-hidden w-full">
+    <div className="border overflow-hidden w-full bg-background-secondary px-md2 py-md3 rounded-lg">
       <Table>
         <TableHeader>
           <TableRow>

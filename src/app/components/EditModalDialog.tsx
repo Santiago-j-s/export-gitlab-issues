@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Issue } from "./IssueItem";
-import { SelectLabels } from "./SelectLabels";
+import { LabelOption, SelectLabels } from "./SelectLabels";
 
 export const EditModalDialog = ({
   editing,
@@ -21,7 +21,7 @@ export const EditModalDialog = ({
 }: {
   onClose: () => void;
   editing: Omit<Issue, "onRemove" | "onEdit"> | null;
-  labelOptions: string[];
+  labelOptions: LabelOption[];
   onUpdate: (updatedIssue: Omit<Issue, "onRemove" | "onEdit">) => void;
   onAddLabel: (label: string) => void;
   onRemoveLabel: (label: string) => void;
@@ -102,8 +102,8 @@ export const EditModalDialog = ({
             />
             <SelectLabels
               options={labelOptions.map((label) => ({
-                label,
-                isSelected: editing?.labels.includes(label) ?? false,
+                ...label,
+                isSelected: editing?.labels.includes(label.label) ?? false,
               }))}
               onClick={(label) => {
                 if (editing?.labels.includes(label)) {

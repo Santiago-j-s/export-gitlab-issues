@@ -1,10 +1,17 @@
-import { z } from 'zod';
+import { z } from "zod";
 import { fetchGitlabAPI } from ".";
 
-export const labelsSchema = z.array(z.object({
-  id: z.number(),
-  name: z.string(),
-}))
+export const labelsSchema = z
+  .array(
+    z.object({
+      id: z.number(),
+      name: z.string(),
+      color: z.string(),
+    })
+  )
+  .transform((data) => {
+    return data.sort((a, b) => a.name.localeCompare(b.name));
+  });
 
 export const getProjectLabels = async (projectId: number, token: string) => {
   const response = await fetchGitlabAPI(`/projects/${projectId}/labels`, token);
@@ -16,4 +23,4 @@ export const getProjectLabels = async (projectId: number, token: string) => {
   const parseResult = labelsSchema.parse(await response.json());
 
   return parseResult;
-}
+};
