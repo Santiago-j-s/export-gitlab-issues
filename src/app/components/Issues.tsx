@@ -6,42 +6,28 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { InputsRow } from "./InputsRow";
 import { Issue, IssueItem } from "./IssueItem";
 
 export interface IssuesProps {
-  labels: string[];
   issues: Issue[];
-  milestone: string | null;
-  onRemoveLabel: (label: string) => void;
+  header: React.ReactNode;
 }
 
-export function Issues({
-  labels,
-  issues,
-  milestone,
-  onRemoveLabel,
-}: IssuesProps) {
+export function Issues({ issues, header }: IssuesProps) {
   return (
-    <div>
-      <h2 className="text-2xl font-bold mb-4">Issues</h2>
-      <div className="border rounded-md overflow-hidden w-full">
-        <Table>
+    <div className="border overflow-scroll h-full w-full bg-background-secondary px-md2 py-md3 rounded-lg flex flex-col gap-md1">
+      {header}
+      <div className="max-h-[480px] h-full overflow-auto">
+        <Table className="w-full">
           <TableHeader>
             <TableRow>
-              <TableHead>Title</TableHead>
+              <TableHead className="min-w-48">Title</TableHead>
               <TableHead>Labels</TableHead>
-              <TableHead>Milestone</TableHead>
-              <TableHead>Description</TableHead>
+              <TableHead className="min-w-32">Milestone</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            <InputsRow
-              labelOptions={labels}
-              milestone={milestone}
-              onRemoveLabel={onRemoveLabel}
-            />
             {issues.map((issue) => (
               <IssueItem key={issue.id} {...issue} />
             ))}

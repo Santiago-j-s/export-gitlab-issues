@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 type TableProps = React.ComponentProps<"table">;
 
 const Table = ({ className, ref, ...props }: TableProps) => (
-  <div className="relative w-full overflow-auto">
+  <div className="relative w-full flex-grow">
     <table
       ref={ref}
       className={cn("w-full caption-bottom text-sm", className)}
@@ -19,7 +19,11 @@ Table.displayName = "Table";
 type TableHeaderProps = React.ComponentProps<"thead">;
 
 const TableHeader = ({ className, ref, ...props }: TableHeaderProps) => (
-  <thead ref={ref} className={cn("[&_tr]:border-b", className)} {...props} />
+  <thead
+    ref={ref}
+    className={cn("[&_tr]:border-b font-semibold text-text-lighter", className)}
+    {...props}
+  />
 );
 
 TableHeader.displayName = "TableHeader";

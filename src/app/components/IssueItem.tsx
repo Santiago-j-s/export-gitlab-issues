@@ -2,12 +2,13 @@ import { TableCell, TableRow } from "@/components/ui/table";
 
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash2 } from "lucide-react";
+import { LabelOption } from "../hooks/useLabels";
 import { Labels } from "./Labels";
 
 export interface Issue {
   id: string;
   title: string;
-  labels: string[];
+  labels: LabelOption[];
   description: string;
   milestone: string;
   onRemove: () => void;
@@ -18,7 +19,6 @@ export function IssueItem({
   id,
   title,
   labels,
-  description,
   milestone,
   onRemove,
   onEdit,
@@ -35,29 +35,28 @@ export function IssueItem({
         <p className="text-zinc-300">{milestone}</p>
       </TableCell>
       <TableCell>
-        <p className="text-zinc-300">{description}</p>
-      </TableCell>
-      <TableCell className="flex gap-4">
-        <Button
-          size="icon"
-          onClick={(e) => {
-            e.preventDefault();
-            onEdit();
-          }}
-        >
-          <Pencil />
-        </Button>
+        <div className="flex gap-4">
+          <Button
+            size="icon"
+            onClick={(e) => {
+              e.preventDefault();
+              onEdit();
+            }}
+          >
+            <Pencil />
+          </Button>
 
-        <Button
-          variant="destructive"
-          size="icon"
-          onClick={(e) => {
-            e.preventDefault();
-            onRemove();
-          }}
-        >
-          <Trash2 />
-        </Button>
+          <Button
+            variant="destructive"
+            size="icon"
+            onClick={(e) => {
+              e.preventDefault();
+              onRemove();
+            }}
+          >
+            <Trash2 />
+          </Button>
+        </div>
       </TableCell>
     </TableRow>
   );
