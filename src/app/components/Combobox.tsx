@@ -109,10 +109,12 @@ export const AsyncCombobox = ({
   search,
   name,
   required,
+  defaultValue,
 }: {
   search: (term: string) => Promise<{ value: string; label: string }[]>;
   name: string;
   required?: boolean;
+  defaultValue?: { value: string; label: string };
 }) => {
   let timeout: NodeJS.Timeout;
 
@@ -168,7 +170,14 @@ export const AsyncCombobox = ({
           />
         </ComboboxContent>
       </Popover>
-      <input hidden readOnly ref={inputRef} name={name} required={required} />
+      <input
+        hidden
+        readOnly
+        ref={inputRef}
+        name={name}
+        defaultValue={defaultValue?.value ?? ""}
+        required={required}
+      />
     </>
   );
 };
