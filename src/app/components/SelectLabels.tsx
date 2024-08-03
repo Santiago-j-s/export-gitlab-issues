@@ -1,4 +1,5 @@
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { X } from "lucide-react";
 import { LabelOption } from "../hooks/useLabels";
 
@@ -24,7 +25,10 @@ export const SelectLabels = ({
             size="sm"
             onClick={() => onClick(label)}
             type="button"
-            className="rounded-xs py-0 px-sm3 leading-5 text-sm font-semibold"
+            className={cn(
+              "rounded-xs py-0 px-sm3 leading-5 text-sm font-semibold",
+              onRemove ? "pr-0" : undefined
+            )}
             style={{
               border: `1px solid ${backgroundColor}`,
               color: isSelected ? color : "var(--text-lighter)",
@@ -33,17 +37,22 @@ export const SelectLabels = ({
           >
             {label}
             {onRemove ? (
-              <Button
+              <div
                 onClick={(e) => {
                   e.stopPropagation();
                   onRemove(label);
                 }}
-                className="w-fit h-fit ml-1 p-1"
-                variant="ghost"
-                type="button"
+                // className="w-fit h-fit ml-1 p-1"
+                // variant="ghost"
+                className={buttonVariants({
+                  variant: "ghost",
+                  className: "w-fit h-fit ml-1",
+                })}
+                role="button"
+                tabIndex={0}
               >
                 <X className="size-3 pointer-events-none" />
-              </Button>
+              </div>
             ) : null}
           </Button>
         );
