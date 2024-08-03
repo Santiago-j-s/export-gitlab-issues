@@ -2,10 +2,6 @@
 
 import { auth } from "@/app/lib/auth";
 import { addIssues } from "@/app/services/gitlab/issues";
-import {
-  getProjectByName,
-  projectSchema,
-} from "@/app/services/gitlab/projects";
 import { z } from "zod";
 
 interface ErrorFormState {
@@ -56,9 +52,12 @@ export const saveIssues = async (formData: FormData): Promise<FormState> => {
     };
   }
 
-  let term: string;
+  let projectId: number;
   try {
-    term = z.string().min(1).parse(formData.get("project"));
+    projectId = z
+      .number({ coerce: true })
+      .min(1)
+      .parse(formData.get("project"));
   } catch (e) {
     return {
       status: "error" as const,
@@ -66,17 +65,7 @@ export const saveIssues = async (formData: FormData): Promise<FormState> => {
     };
   }
 
-  let project: z.infer<typeof projectSchema>;
-  try {
-    project = await getProjectByName(term, session.accessToken);
-  } catch (e) {
-    return {
-      status: "error" as const,
-      message: (e as Error).message,
-    };
-  }
-
-  await addIssues(project.id, issues, session.accessToken);
+  await addIssues(projectId, issues, session.accessToken);
 
   return {
     status: "success" as const,

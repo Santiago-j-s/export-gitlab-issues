@@ -5,12 +5,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DialogDescription } from "@radix-ui/react-dialog";
 import { ReactNode, useState } from "react";
 import { useFormState } from "react-dom";
 import { Issue } from "../IssueItem";
+import { ProjectsCombobox } from "../ProjectsCombobox";
 import { SubmitButton } from "../SubmitButton";
 import { FormState, saveIssues } from "./actions";
 
@@ -54,7 +54,7 @@ export const AddIssuesDialog = ({
         <form className="flex flex-col gap-6" action={action}>
           <div className="flex flex-col gap-2">
             <Label htmlFor="project">Name of project</Label>
-            <Input name="project" id="project" required />
+            <ProjectsCombobox name="project" required />
           </div>
 
           <input
