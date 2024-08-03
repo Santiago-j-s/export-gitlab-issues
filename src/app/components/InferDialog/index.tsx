@@ -9,8 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { DialogDescription } from "@radix-ui/react-dialog";
-import { ReactNode, useState } from "react";
-import { useFormState } from "react-dom";
+import { ReactNode, useActionState, useState } from "react";
 import { Issue } from "../IssueItem";
 import { Labels } from "../Labels";
 import { SubmitButton } from "../SubmitButton";
@@ -27,7 +26,7 @@ export const InferDialog = ({
 }) => {
   const [isOpen, setOpen] = useState(false);
 
-  const [_, action] = useFormState(
+  const [_, action] = useActionState(
     async (_prevState: FormState, formData: FormData) => {
       const retVal = await inferFromCsv(formData);
 

@@ -42,8 +42,6 @@ export const SelectLabels = ({
                   e.stopPropagation();
                   onRemove(label);
                 }}
-                // className="w-fit h-fit ml-1 p-1"
-                // variant="ghost"
                 className={buttonVariants({
                   variant: "ghost",
                   className: "w-fit h-fit ml-1",
