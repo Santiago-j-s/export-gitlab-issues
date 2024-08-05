@@ -6,9 +6,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useState } from "react";
-import { LabelOption, generateLabelOption } from "../hooks/useLabels";
+import { generateLabelOption } from "../hooks/useLabels";
 import { IssueForm, parseIssueFormResult } from "./IssueForm";
 import { Issue } from "./IssueItem";
+import { RemovableLabelOption } from "./SelectLabels";
 
 export const EditModalDialog = ({
   editing,
@@ -18,7 +19,7 @@ export const EditModalDialog = ({
 }: {
   onClose: () => void;
   editing: Omit<Issue, "onRemove" | "onEdit"> | null;
-  labelOptions: LabelOption[];
+  labelOptions: RemovableLabelOption[];
   onUpdate: (updatedIssue: Omit<Issue, "onRemove" | "onEdit">) => void;
 }) => {
   const [localLabelOptions, setLocalLabelOptions] = useState(labelOptions);
@@ -49,7 +50,7 @@ export const EditModalDialog = ({
             onAddLabel={(label) => {
               setLocalLabelOptions([
                 ...localLabelOptions,
-                generateLabelOption({ label }),
+                { ...generateLabelOption({ label }), removable: true },
               ]);
             }}
             defaultValues={{

@@ -5,12 +5,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DialogDescription } from "@radix-ui/react-dialog";
-import { ReactNode, useState } from "react";
-import { useFormState } from "react-dom";
+import { ReactNode, useActionState, useState } from "react";
 import { z } from "zod";
+import { ProjectsCombobox } from "../ProjectsCombobox";
 import { SubmitButton } from "../SubmitButton";
 import { FormState, importLabels } from "./actions";
 
@@ -22,7 +21,7 @@ export const ImportLabelsDialog = ({
   onSuccess: (payload: z.infer<typeof labelsSchema>) => void;
 }) => {
   const [isOpen, setOpen] = useState(false);
-  const [, action] = useFormState(
+  const [, action] = useActionState(
     async (_prevState: FormState, formData: FormData) => {
       const retVal = await importLabels(formData);
 
@@ -54,7 +53,7 @@ export const ImportLabelsDialog = ({
         <form className="flex flex-col gap-5" action={action}>
           <div className="flex flex-col gap-2">
             <Label htmlFor="project">Name of project</Label>
-            <Input name="project" id="project" required />
+            <ProjectsCombobox name="project" required />
           </div>
 
           <SubmitButton pendingLabel="Importing..." submitLabel="Import" />

@@ -1,8 +1,7 @@
-'use server'
+"use server";
 
 import { auth } from "@/app/lib/auth";
 import { getProjectLabels, labelsSchema } from "@/app/services/gitlab/labels";
-import { getProjectByName, projectSchema } from "@/app/services/gitlab/projects";
 import { z } from "zod";
 
 interface ErrorFormState {
@@ -32,48 +31,40 @@ export const importLabels = async (formData: FormData): Promise<FormState> => {
     return {
       status: "error" as const,
       message: "You need to be logged in to import labels",
-    }
+    };
   }
 
-  let term: string;
+  let projectId: number;
   try {
-    term = z.string().min(1).parse(formData.get("project"))
+    projectId = z
+      .number({ coerce: true })
+      .min(1)
+      .parse(formData.get("project"));
   } catch (e) {
     return {
       status: "error" as const,
       message: "You need to provide a project name",
-    }
-  }
-
-
-  let project: z.infer<typeof projectSchema>;
-  try {
-    project = await getProjectByName(term, session.accessToken);
-  } catch (e) {
-    return {
-      status: "error" as const,
-      message: (e as Error).message,
-    }
+    };
   }
 
   try {
-    const labels = await getProjectLabels(project.id, session.accessToken);
+    const labels = await getProjectLabels(projectId, session.accessToken);
 
     return {
       status: "success" as const,
       result: labels,
-    }
+    };
   } catch (e) {
     if (e instanceof z.ZodError) {
       return {
         status: "error" as const,
         message: e.errors.map((err) => err.message).join("\n"),
-      }
+      };
     }
 
     return {
       status: "error" as const,
       message: (e as Error).message,
-    }
+    };
   }
-}
+};
