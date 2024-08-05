@@ -4,7 +4,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import { useRef, useState } from "react";
 import { LabelOption, generateLabelOption } from "../hooks/useLabels";
-import { SelectLabels } from "./SelectLabels";
+import { RemovableLabelOption, SelectLabels } from "./SelectLabels";
 
 export function IssueForm({
   labelOptions,
@@ -13,7 +13,7 @@ export function IssueForm({
   onAddLabel,
   defaultValues,
 }: {
-  labelOptions: LabelOption[];
+  labelOptions: RemovableLabelOption[];
   labelsActions: React.ReactNode;
   onRemoveLabel: (label: string) => void;
   onAddLabel?: (label: string) => void;
@@ -95,12 +95,15 @@ export function IssueForm({
 
       <ScrollArea className="max-h-52">
         <SelectLabels
-          options={labelOptions.map(({ label, backgroundColor, color }) => ({
-            isSelected: selectedLabels.includes(label),
-            label,
-            backgroundColor,
-            color,
-          }))}
+          options={labelOptions.map(
+            ({ label, backgroundColor, color, removable }) => ({
+              isSelected: selectedLabels.includes(label),
+              label,
+              backgroundColor,
+              color,
+              removable,
+            })
+          )}
           onClick={(label) => {
             const newSelectedLabels = selectedLabels.includes(label)
               ? selectedLabels.filter((l) => l !== label)
