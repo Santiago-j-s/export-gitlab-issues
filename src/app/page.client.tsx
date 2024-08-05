@@ -8,13 +8,14 @@ import { InferDialog } from "./components/InferDialog";
 import { IssueForm, parseIssueFormResult } from "./components/IssueForm";
 import { Issues } from "./components/Issues";
 import { ResetLabels } from "./components/ResetLabels";
+import { RemovableLabelOption } from "./components/SelectLabels";
 import { TwoResizableColumns } from "./components/TwoResizableColumns";
 import { useIssues } from "./hooks/useIssues";
-import { LabelOption, generateLabelOption, useLabels } from "./hooks/useLabels";
+import { generateLabelOption, useLabels } from "./hooks/useLabels";
 
 const combineEditingLabelsWithLabels = (
-  editingLabels: LabelOption[],
-  labels: LabelOption[]
+  editingLabels: RemovableLabelOption[],
+  labels: RemovableLabelOption[]
 ) => {
   const labelsNotRepeated = [
     ...labels.map((label) => label.label),
@@ -27,7 +28,7 @@ const combineEditingLabelsWithLabels = (
     const existingLabel = labels.find((l) => l.label === label);
 
     if (!existingLabel) {
-      return generateLabelOption({ label });
+      return { ...generateLabelOption({ label }), removable: true };
     }
 
     return existingLabel;
@@ -77,7 +78,10 @@ export default function ClientPage() {
           >
             <p className="text-h4 font-semibold">Add issue</p>
             <IssueForm
-              labelOptions={labels}
+              labelOptions={labels.map((label) => ({
+                ...label,
+                removable: true,
+              }))}
               labelsActions={
                 <div className="flex gap-2">
                   <ResetLabels resetLabels={resetLabels} />
@@ -133,8 +137,14 @@ export default function ClientPage() {
           setEditing(null);
         }}
         labelOptions={combineEditingLabelsWithLabels(
-          editing?.labels ?? [],
-          labels
+          editing?.labels.map((label) => ({
+            ...label,
+            removable: true,
+          })) ?? [],
+          labels.map((label) => ({
+            ...label,
+            removable: false,
+          }))
         )}
       />
     </>

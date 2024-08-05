@@ -7,8 +7,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { DialogDescription } from "@radix-ui/react-dialog";
-import { ReactNode, useState } from "react";
-import { useFormState } from "react-dom";
+import { ReactNode, useActionState, useState } from "react";
 import { Issue } from "../IssueItem";
 import { ProjectsCombobox } from "../ProjectsCombobox";
 import { SubmitButton } from "../SubmitButton";
@@ -22,7 +21,7 @@ export const AddIssuesDialog = ({
   issuesToAdd: Issue[];
 }) => {
   const [isOpen, setOpen] = useState(false);
-  const [, action] = useFormState(
+  const [, action] = useActionState(
     async (_formState: FormState, formData: FormData) => {
       const retVal = await saveIssues(formData);
 
