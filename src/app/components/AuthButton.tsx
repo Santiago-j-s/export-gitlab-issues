@@ -36,9 +36,13 @@ export const AuthButton = async () => {
         });
       }}
     >
-      <Button type="submit">
+      <Button type="submit" className="hidden lg:inline-flex">
         {session ? <LogOut className="size-4 mr-2" /> : <GitlabIcon />}
         {session ? "Sign out" : "Sign in with Gitlab"}
+      </Button>
+
+      <Button type="submit" className="lg:hidden" size="icon">
+        {session ? <LogOut className="size-4" /> : <GitlabIcon />}
       </Button>
     </form>
   );
