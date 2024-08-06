@@ -95,34 +95,41 @@ export const TwoResizableColumns = ({
   }, [state.resizing]);
 
   return (
-    <div className="flex w-full relative" ref={wrapperRef}>
-      <div
-        style={{
-          width: state.positionX,
-        }}
-        className="pr-md1"
-      >
-        {columnA}
+    <>
+      <div className="w-full relative hidden lg:flex" ref={wrapperRef}>
+        <div
+          style={{
+            width: state.positionX,
+          }}
+          className="pr-md1"
+        >
+          {columnA}
+        </div>
+        <button
+          className="w-sm1 h-full bg-border rounded-md cursor-col-resize absolute"
+          style={{
+            left: state.positionX - 2,
+          }}
+          onMouseDown={() => {
+            dispatch({
+              type: "RESIZE_START",
+            });
+          }}
+        />
+        <div
+          style={{
+            width: `calc(100% - ${state.positionX}px)`,
+          }}
+          className="pl-md1 overflow-scroll"
+        >
+          {columnB}
+        </div>
       </div>
-      <button
-        className="w-sm1 h-full bg-border rounded-md cursor-col-resize absolute"
-        style={{
-          left: state.positionX - 2,
-        }}
-        onMouseDown={() => {
-          dispatch({
-            type: "RESIZE_START",
-          });
-        }}
-      />
-      <div
-        style={{
-          width: `calc(100% - ${state.positionX}px)`,
-        }}
-        className="pl-md1 overflow-scroll"
-      >
-        {columnB}
+
+      <div className="flex flex-col gap-6">
+        <div className="lg:hidden">{columnA}</div>
+        <div className="lg:hidden">{columnB}</div>
       </div>
-    </div>
+    </>
   );
 };
