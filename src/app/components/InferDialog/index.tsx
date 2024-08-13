@@ -8,6 +8,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Textarea } from "@/components/ui/textarea";
 import { DialogDescription } from "@radix-ui/react-dialog";
 import { ReactNode, useActionState, useState } from "react";
 import { Issue } from "../IssueItem";
@@ -122,6 +123,15 @@ export const InferDialog = ({
               If you need changes in labels please close this dialog and edit
               them
             </p>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="notes">Notes for AI</Label>
+            <Textarea
+              name="notes"
+              id="notes"
+              placeholder="Try to include efford and priority labels in all the issues"
+            />
           </div>
 
           <div className="flex flex-col gap-2">
