@@ -15,7 +15,7 @@ export default async function Home() {
   }
 
   return (
-    <main className="max-w-7xl mx-auto flex flex-col gap-8 py-10">
+    <main className="max-w-7xl mx-auto flex flex-col gap-8 py-10 px-4">
       <Suspense>
         <OnlyClientPage />
       </Suspense>
