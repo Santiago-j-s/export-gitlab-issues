@@ -31,6 +31,9 @@ export const SelectLabels = ({
         disabledText={
           disabled ? "Import labels from a project first" : undefined
         }
+        onSelect={(value) => {
+          onClick(value);
+        }}
       />
       <div className="flex gap-2 flex-wrap">
         {options

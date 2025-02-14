@@ -200,6 +200,7 @@ export const Combobox = ({
   required,
   disabled,
   disabledText,
+  onSelect,
 }: {
   options: { value: string; label: string }[];
   name: string;
@@ -207,6 +208,7 @@ export const Combobox = ({
   required?: boolean;
   disabled?: boolean;
   disabledText?: string;
+  onSelect?: (value: string) => void;
 }) => {
   const { open, setOpen, value, setValue, buttonTriggerRef } =
     useCombobox(defaultValue);
@@ -237,6 +239,10 @@ export const Combobox = ({
 
             if (inputRef.current) {
               inputRef.current.value = newValue?.value || "";
+            }
+
+            if (onSelect) {
+              onSelect(newValue?.value || "");
             }
           }}
         >
