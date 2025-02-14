@@ -6,7 +6,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useState } from "react";
-import { generateLabelOption } from "../hooks/useLabels";
 import { IssueForm, parseIssueFormResult } from "./IssueForm";
 import { Issue } from "./IssueItem";
 import { RemovableLabelOption } from "./SelectLabels";
@@ -46,12 +45,6 @@ export const EditModalDialog = ({
               setLocalLabelOptions(
                 localLabelOptions.filter((l) => l.label !== label)
               );
-            }}
-            onAddLabel={(label) => {
-              setLocalLabelOptions([
-                ...localLabelOptions,
-                { ...generateLabelOption({ label }), removable: true },
-              ]);
             }}
             defaultValues={{
               title: editing?.title ?? "",

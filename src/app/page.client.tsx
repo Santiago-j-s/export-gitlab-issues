@@ -102,6 +102,8 @@ export default function ClientPage() {
               }
               onRemoveLabel={removeLabel}
             />
+
+            <Button type="submit">Add issue</Button>
           </form>
         }
         columnB={

@@ -10,13 +10,11 @@ export function IssueForm({
   labelOptions,
   labelsActions,
   onRemoveLabel,
-  onAddLabel,
   defaultValues,
 }: {
   labelOptions: RemovableLabelOption[];
   labelsActions: React.ReactNode;
   onRemoveLabel: (label: string) => void;
-  onAddLabel?: (label: string) => void;
   defaultValues?: {
     title: string;
     labels: string[];
@@ -85,73 +83,58 @@ export function IssueForm({
         />
       </div>
 
-      <div className="w-full flex justify-between items-center">
-        <Label htmlFor="label">
-          Labels
-          <span className="text-xs"> (Select all who apply)</span>
-        </Label>
-        {labelsActions}
+      <div className="flex flex-col gap-2">
+        <div className="w-full flex justify-between items-center">
+          <Label htmlFor="label">
+            Labels
+            <span className="text-xs"> (Select all who apply)</span>
+          </Label>
+          {labelsActions}
+        </div>
+
+        <ScrollArea className="max-h-52">
+          <SelectLabels
+            options={labelOptions.map(
+              ({ label, backgroundColor, color, removable }) => ({
+                isSelected: selectedLabels.includes(label),
+                label,
+                backgroundColor,
+                color,
+                removable,
+              })
+            )}
+            onClick={(label) => {
+              const newSelectedLabels = selectedLabels.includes(label)
+                ? selectedLabels.filter((l) => l !== label)
+                : [...selectedLabels, label];
+              setSelectedLabels(newSelectedLabels);
+
+              if (labelsInputRef.current) {
+                labelsInputRef.current.value = newSelectedLabels.join(",");
+              }
+            }}
+            onRemove={(label) => {
+              onRemoveLabel(label);
+
+              const newSelectedLabels = selectedLabels.filter(
+                (l) => l !== label
+              );
+              setSelectedLabels(newSelectedLabels);
+
+              if (labelsInputRef.current) {
+                labelsInputRef.current.value = newSelectedLabels.join(",");
+              }
+            }}
+          />
+          <input
+            type="hidden"
+            name="label"
+            readOnly
+            defaultValue={defaultValues?.labels.join(",") ?? ""}
+            ref={labelsInputRef}
+          />
+        </ScrollArea>
       </div>
-
-      <ScrollArea className="max-h-52">
-        <SelectLabels
-          options={labelOptions.map(
-            ({ label, backgroundColor, color, removable }) => ({
-              isSelected: selectedLabels.includes(label),
-              label,
-              backgroundColor,
-              color,
-              removable,
-            })
-          )}
-          onClick={(label) => {
-            const newSelectedLabels = selectedLabels.includes(label)
-              ? selectedLabels.filter((l) => l !== label)
-              : [...selectedLabels, label];
-            setSelectedLabels(newSelectedLabels);
-
-            if (labelsInputRef.current) {
-              labelsInputRef.current.value = newSelectedLabels.join(",");
-            }
-          }}
-          onRemove={(label) => {
-            onRemoveLabel(label);
-
-            const newSelectedLabels = selectedLabels.filter((l) => l !== label);
-            setSelectedLabels(newSelectedLabels);
-
-            if (labelsInputRef.current) {
-              labelsInputRef.current.value = newSelectedLabels.join(",");
-            }
-          }}
-        />
-        <input
-          type="hidden"
-          name="label"
-          readOnly
-          defaultValue={defaultValues?.labels.join(",") ?? ""}
-          ref={labelsInputRef}
-        />
-      </ScrollArea>
-
-      <Input
-        type="text"
-        id="label"
-        name="add-label"
-        placeholder="Add label"
-        className="w-full"
-        form="add-label"
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            e.preventDefault();
-            if (onAddLabel) {
-              onAddLabel(e.currentTarget.value);
-              return;
-            }
-            e.currentTarget.form?.requestSubmit();
-          }
-        }}
-      />
     </>
   );
 }

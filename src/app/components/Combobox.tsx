@@ -31,8 +31,14 @@ const useCombobox = (defaultValue?: { value: string; label: string }) => {
 
 const ComboboxTrigger = forwardRef<
   HTMLButtonElement,
-  { open: boolean; pending?: boolean; selectedLabel: string | undefined }
->(({ open, pending, selectedLabel }, ref) => {
+  {
+    open: boolean;
+    pending?: boolean;
+    selectedLabel: string | undefined;
+    disabled?: boolean;
+    disabledText?: string;
+  }
+>(({ open, pending, selectedLabel, disabled, disabledText }, ref) => {
   return (
     <PopoverTrigger asChild>
       <Button
@@ -41,8 +47,13 @@ const ComboboxTrigger = forwardRef<
         aria-expanded={open}
         className="w-full justify-between"
         ref={ref}
+        disabled={disabled}
       >
-        {pending ? "Loading..." : selectedLabel || "Select option..."}
+        {pending
+          ? "Loading..."
+          : disabled
+            ? disabledText || "Disabled"
+            : selectedLabel || "Select option..."}
         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
       </Button>
     </PopoverTrigger>
@@ -187,11 +198,15 @@ export const Combobox = ({
   name,
   defaultValue,
   required,
+  disabled,
+  disabledText,
 }: {
   options: { value: string; label: string }[];
   name: string;
   defaultValue?: { value: string; label: string };
   required?: boolean;
+  disabled?: boolean;
+  disabledText?: string;
 }) => {
   const { open, setOpen, value, setValue, buttonTriggerRef } =
     useCombobox(defaultValue);
@@ -206,6 +221,8 @@ export const Combobox = ({
           open={open}
           selectedLabel={value?.label}
           ref={buttonTriggerRef}
+          disabled={disabled}
+          disabledText={disabledText}
         />
 
         <ComboboxContent
@@ -223,7 +240,7 @@ export const Combobox = ({
             }
           }}
         >
-          <CommandInput />
+          <CommandInput disabled={disabled} />
         </ComboboxContent>
       </Popover>
       <input
